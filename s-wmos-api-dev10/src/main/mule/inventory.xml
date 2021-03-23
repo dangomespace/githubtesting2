@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 				</on-error-propagate>
 			</error-handler>
 		</try>
-		<logger level="INFO" doc:name="Logger" doc:id="1a614333-4f40-427d-acad-25dd19f105a1" message="after db call"/>
+		<logger level="INFO" doc:name="GITHUB 3" doc:id="1a614333-4f40-427d-acad-25dd19f105a1" message="after db call"/>
 		<ee:transform doc:name="payload" doc:id="3ccff84a-4447-4458-8e36-a05ab9649484">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
