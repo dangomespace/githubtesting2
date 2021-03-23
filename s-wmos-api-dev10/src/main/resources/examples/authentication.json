@@ -1,0 +1,10 @@
+{
+  "security": {
+		"action": "SignIn",
+		"contextID": "123456",
+		"credentials": {
+			"username": "userX",
+			"password": "pa55w0rd"
+						}
+			  }
+}

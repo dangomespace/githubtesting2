@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.cbo.services.wmos.manh.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="ItemService" targetNamespace="http://service.cbo.services.wmos.manh.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.cbo.services.wmos.manh.com/" elementFormDefault="unqualified" targetNamespace="http://service.cbo.services.wmos.manh.com/" version="1.0">
+
+  <xs:element name="ValidationResult" type="tns:validationResult"/>
+
+  <xs:element name="createItem" type="tns:createItem"/>
+
+  <xs:element name="createItemResponse" type="tns:createItemResponse"/>
+
+  <xs:element name="deleteItem" type="tns:deleteItem"/>
+
+  <xs:element name="deleteItemResponse" type="tns:deleteItemResponse"/>
+
+  <xs:element name="getItem" type="tns:getItem"/>
+
+  <xs:element name="getItemResponse" type="tns:getItemResponse"/>
+
+  <xs:element name="listItem" type="tns:listItem"/>
+
+  <xs:element name="listItemResponse" type="tns:listItemResponse"/>
+
+  <xs:element name="updateItem" type="tns:updateItem"/>
+
+  <xs:element name="updateItemResponse" type="tns:updateItemResponse"/>
+
+  <xs:complexType name="deleteItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemKey" type="tns:itemKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemKey">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemName" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="deleteItemResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Value" type="xs:anyType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="ValidationMessage" type="tns:validationMessage"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="objectId" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="updateableItemData" type="tns:updateableItemData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateableItemData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="baseStorageUOM" type="xs:string"/>
+      <xs:element name="bondedProduct" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="facility" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemBarCode" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemCost" nillable="true" type="tns:itemCostData"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemFacilityWmos" nillable="true" type="tns:itemFacilityWmosData"/>
+      <xs:element minOccurs="0" name="itemKey" type="tns:itemKey"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemPackage" nillable="true" type="tns:itemPackageData"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemPrice" nillable="true" type="tns:itemPriceData"/>
+      <xs:element minOccurs="0" name="itemWmos" type="tns:itemWmosData"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element name="seasonalProduct" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="supplierItemBarCode" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemCostData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="costType" type="xs:string"/>
+      <xs:element minOccurs="0" name="currencyCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="displayUOM" type="xs:string"/>
+      <xs:element name="unitCost" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemFacilityWmosData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="activeMaxLpns" type="xs:int"/>
+      <xs:element minOccurs="0" name="activeMaxUnits" type="xs:double"/>
+      <xs:element minOccurs="0" name="allocationType" type="xs:string"/>
+      <xs:element minOccurs="0" name="defaultWaveProcessType" type="xs:long"/>
+      <xs:element minOccurs="0" name="facility" type="xs:string"/>
+      <xs:element minOccurs="0" name="fifoRange" type="xs:long"/>
+      <xs:element minOccurs="0" name="itemAverageWeight" type="xs:double"/>
+      <xs:element minOccurs="0" name="lpnPerTier" type="xs:long"/>
+      <xs:element minOccurs="0" name="pickMaxLpns" type="xs:int"/>
+      <xs:element minOccurs="0" name="pickMaxUnits" type="xs:double"/>
+      <xs:element minOccurs="0" name="putawayType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemPackageData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="packageUOM" type="xs:string"/>
+      <xs:element name="quantity" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemPriceData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="channelType" type="xs:string"/>
+      <xs:element minOccurs="0" name="currencyCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="displayUOM" type="xs:string"/>
+      <xs:element minOccurs="0" name="priceType" type="xs:string"/>
+      <xs:element name="retailPrice" type="xs:double"/>
+      <xs:element name="unitPrice" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemWmosData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="batchReqd" type="xs:string"/>
+      <xs:element minOccurs="0" name="cntryOfOrgnReqd" type="xs:string"/>
+      <xs:element minOccurs="0" name="dateCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="dateWindow" type="xs:string"/>
+      <xs:element minOccurs="0" name="expDateReqd" type="xs:string"/>
+      <xs:element minOccurs="0" name="mfgDateReqd" type="xs:string"/>
+      <xs:element minOccurs="0" name="prodStatReqd" type="xs:string"/>
+      <xs:element minOccurs="0" name="promptForVendor" type="xs:string"/>
+      <xs:element minOccurs="0" name="shipByDateReqd" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateItemResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemData" type="tns:itemData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="baseStorageUOM" type="xs:string"/>
+      <xs:element name="bondedProduct" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="facility" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemBarCode" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemCost" nillable="true" type="tns:itemCostData"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemFacilityWmos" nillable="true" type="tns:itemFacilityWmosData"/>
+      <xs:element minOccurs="0" name="itemKey" type="tns:itemKey"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemPackage" nillable="true" type="tns:itemPackageData"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="itemPrice" nillable="true" type="tns:itemPriceData"/>
+      <xs:element minOccurs="0" name="itemWmos" type="tns:itemWmosData"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element name="seasonalProduct" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="supplierItemBarCode" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createItemResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemKey" type="tns:itemKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getItemResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:itemData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemEnquiryData" type="tns:itemEnquiryData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="itemEnquiryData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessPartner" type="xs:string"/>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+      <xs:element name="fetchCount" type="xs:int"/>
+      <xs:element minOccurs="0" name="itemName" type="xs:string"/>
+      <xs:element name="pageIndex" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listItemResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:itemKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="updateItemResponse">
+    <wsdl:part element="tns:updateItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteItemResponse">
+    <wsdl:part element="tns:deleteItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateItem">
+    <wsdl:part element="tns:updateItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createItem">
+    <wsdl:part element="tns:createItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getItem">
+    <wsdl:part element="tns:getItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteItem">
+    <wsdl:part element="tns:deleteItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createItemResponse">
+    <wsdl:part element="tns:createItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getItemResponse">
+    <wsdl:part element="tns:getItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listItemResponse">
+    <wsdl:part element="tns:listItemResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listItem">
+    <wsdl:part element="tns:listItem" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SOAItemServiceWrapper">
+    <wsdl:operation name="deleteItem">
+      <wsdl:input message="tns:deleteItem" name="deleteItem">
+    </wsdl:input>
+      <wsdl:output message="tns:deleteItemResponse" name="deleteItemResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateItem">
+      <wsdl:input message="tns:updateItem" name="updateItem">
+    </wsdl:input>
+      <wsdl:output message="tns:updateItemResponse" name="updateItemResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createItem">
+      <wsdl:input message="tns:createItem" name="createItem">
+    </wsdl:input>
+      <wsdl:output message="tns:createItemResponse" name="createItemResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getItem">
+      <wsdl:input message="tns:getItem" name="getItem">
+    </wsdl:input>
+      <wsdl:output message="tns:getItemResponse" name="getItemResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listItem">
+      <wsdl:input message="tns:listItem" name="listItem">
+    </wsdl:input>
+      <wsdl:output message="tns:listItemResponse" name="listItemResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ItemServiceSoapBinding" type="tns:SOAItemServiceWrapper">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="deleteItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listItem">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="listItem">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listItemResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ItemService">
+    <wsdl:port binding="tns:ItemServiceSoapBinding" name="SOAItemServiceWrapperPort">
+      <soap:address location="https://mn17-t06-http.wl.wincanton-local.co.uk:36001/services/ItemService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="s-wmos-api-suite.xml" />
+	<munit:test name="post:\authentication-invalid-contextID" doc:id="b13e817f-ed89-493b-a28b-ab8c85ef338b">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="d7dcd389-8c63-4b7b-a9e8-57fe81424d5f" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://postauthenticationinvalidcontextID\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthenticationinvalidcontextID\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthenticationinvalidcontextID\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when retrieve contexID from OS" doc:id="188070de-6238-494d-a824-9368d7cb7d23" processor="os:retrieve">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Retrieve contextID-username" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="OS:KEY_NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when Manhattan Signin" doc:id="0f927fba-2db4-4dcc-b2a5-17a17c308442" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Manhattan signIn" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("postauthenticationinvalidcontextID/sign-in-output-payload.xml")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when OS save" doc:id="7dd29a8e-eee0-4d2a-9dc4-e0710bd81e4f" processor="os:store">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="save contextID to object store" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="save contextID to object store" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\authentication:application\json:s-wmos-api-config" doc:id="a0e108f1-4299-4657-b497-2f3f45458baf" name="post:\authentication:application\json:s-wmos-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="86ff78af-19e0-4eaa-bad8-f1e7b691fb79" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import postauthenticationinvalidcontextID::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\authentication-signOut" doc:id="269d559b-f007-46b8-9f7b-a92d6ddba1fd">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="4f5e16d3-ad87-4c86-8e30-bee23be88481" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://postauthenticationsignOut\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthenticationsignOut\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthenticationsignOut\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when manhatttan-signout" doc:id="c7514eca-7d0d-4688-94d1-acca72e14747" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="manhattan-signout" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when remove OS key" doc:id="dc9109ba-7ccf-4fc1-ac92-29f018176312" processor="os:remove">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Remove" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\authentication:application\json:s-wmos-api-config" doc:id="0617da75-cff9-4f6c-aa5c-efd57b4def50" name="post:\authentication:application\json:s-wmos-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="62544571-7de9-4168-8dad-02cf64ed21fa" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import postauthenticationsignOut::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\authentication-signOut-invalid-key" doc:id="9c57823e-3842-4b5c-b480-9aa1803ba259">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="b8b8d354-2a95-4ac5-866c-feac9ca6ad6e">
+				<munit:payload value="#[output application/json --- readUrl('classpath://postauthenticationsignOut\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthenticationsignOut\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthenticationsignOut\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when manhatttan-signout" doc:id="7cf524af-2e44-40c0-9f70-b5aaf3a72567" processor="wsc:consume">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="manhattan-signout" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when remove OS key" doc:id="6469dfea-56f7-4244-8d26-9cc2d6a6e43b" processor="os:remove">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="Remove" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="OS:KEY_NOT_FOUND" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to post:\authentication:application\json:s-wmos-api-config" doc:id="6ffb244a-10e1-4752-bf60-5d0f9da4bf1e" name="post:\authentication:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="8581541f-64d5-4ac6-896c-063a2d2264f9" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import postauthenticationsignOut::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="validate-businesUnit-test" doc:id="68b9d86c-e3a7-4c7f-91e9-02c965749e86">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="0a1bb50c-3253-48d5-9ff1-d1a6ebd71e99">
+					<munit:payload value="#[output application/json --- readUrl('classpath://validatebusinesUnittest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+					<munit:attributes value="#[readUrl('classpath://validatebusinesUnittest\set-event_attributes.dwl')]" />
+					<munit:variables>
+						<munit:variable key="clientID" value="#[output application/java --- readUrl('classpath://validatebusinesUnittest\set-event_variable_.dwl')]" encoding="UTF-8" mediaType="application/java" />
+						<munit:variable key="outboundHeaders" value="#[readUrl('classpath://validatebusinesUnittest\set-event_variable_1.dwl')]" />
+						<munit:variable key="businessUnit" value="#[output application/java --- readUrl('classpath://validatebusinesUnittest\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/java" />
+						<munit:variable key="transactionID" value="#[output application/java --- readUrl('classpath://validatebusinesUnittest\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock when getUserDetails" doc:id="dce0c253-2e14-4b60-8e41-72178e495a09" processor="wsc:consume ">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="BU validation-getUser Details" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to validate-businesUnit" doc:id="4083b092-d7f7-4ae5-a062-bbb27009173e" name="validate-businesUnit" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="150ddaaf-ed80-4280-9dda-a0a0060ad39e" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import validatebusinesUnittest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="post:\authentication\validate\contextID" doc:id="9ccbd654-2660-4baf-918f-0e95062ade81">
+		<munit:behavior>
+			<munit:set-event doc:name="Set Input" doc:id="091207e7-dad2-4d0a-b124-9047e096edce">
+				<munit:payload value="#[output application/json --- readUrl('classpath://postauthenticationvalidatecontextID\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://postauthenticationvalidatecontextID\set-event_attributes.dwl')]" />
+				<munit:variables>
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthenticationvalidatecontextID\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="139a4fd6-9b34-40df-ba48-08f814f320a2" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="retrieve-contextID" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:variables>
+						<munit-tools:variable key="contextID" value='#["FA86E29479CBBDCBDCB32BB7B52A69FB3AB24E28666D1491B92035B6466E59E39BCF5597793A52373E8BA862B8E9E44DD4C33432DAA50D15C437E576E02DB9726A261D3A32CB53573C188485080F0948B10F24194694643742F42CD21F096A4AF01B60658B4DE1FC5BFA721E499864C3"]' />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref doc:name="Flow-ref to post:\authentication\validate\contextID:application\json:s-wmos-api-config" doc:id="b0fa35fc-d71a-4e33-ac24-48aead005cfa" name="post:\authentication\validate\contextID:application\json:s-wmos-api-config" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert payload" doc:id="e7816aa8-992c-41de-9206-08d81c9778d0" message="The payload does not match">
+				<munit-tools:that><![CDATA[#[%dw 2.0
+import postauthenticationvalidatecontextID::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\authentication\validate\contextID-invalid" doc:id="84827120-b1be-4524-abc0-f9836abe49c8" expectedErrorType="OS:KEY_NOT_FOUND">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="6c2620a8-2fdd-4e95-ab21-ff2ccfd77dd0">
+					<munit:payload value="#[output application/json --- readUrl('classpath://postauthenticationvalidatecontextID\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+					<munit:attributes value="#[readUrl('classpath://postauthenticationvalidatecontextID\set-event_attributes.dwl')]" />
+					<munit:variables>
+						<munit:variable key="outboundHeaders" value="#[readUrl('classpath://postauthenticationvalidatecontextID\set-event_variable_.dwl')]" />
+					</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock when" doc:id="45367b0b-8c7b-4064-97a5-5393ea9190d4" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="retrieve-contextID" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="OS:KEY_NOT_FOUND" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value='#["FA86E29479CBBDCBDCB32BB7B52A69FB3AB24E28666D1491B92035B6466E59E39BCF5597793A52373E8BA862B8E9E44DD4C33432DAA50D15C437E576E02DB9726A261D3A32CB53573C188485080F0948B10F24194694643742F42CD21F096A4AF01B60658B4DE1FC5BFA721E499864C3"]' />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to post:\authentication\validate\contextID:application\json:s-wmos-api-config" doc:id="bd83bc5c-cd18-4574-b3bc-54bae12557f9" name="post:\authentication\validate\contextID:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="f121a4dc-73de-4625-a3ec-e804164bafe1" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import postauthenticationvalidatecontextID::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+
+
+</mule>

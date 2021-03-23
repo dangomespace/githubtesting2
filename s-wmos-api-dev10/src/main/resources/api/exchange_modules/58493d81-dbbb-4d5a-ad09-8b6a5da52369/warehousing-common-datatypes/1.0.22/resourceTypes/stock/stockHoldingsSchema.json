@@ -1,0 +1,133 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "http://wincanton.co.uk/StockAdjustments.json",
+	"type": "object",
+	"title": "Stock Adjustments",
+	"description": "The root schema for Stock Adjustments.",
+	"default": {},
+	"properties": {
+		"stockAdjustments": {
+			"$id": "#/properties/stockAdjustments",
+			"type": "array",
+			"title": "Stock Adjustments Array",
+			"description": "Stock Adjustments Array",
+			"default": [],
+			"additionalItems": true,
+			"items": {
+				"$id": "#/properties/stockAdjustments/items",
+				"anyOf": [{
+					"$id": "#/properties/stockAdjustments/items/anyOf/0",
+					"type": "object",
+					"title": "The first anyOf schema",
+					"description": "An explanation about the purpose of this instance.",
+					"default": {},
+					"properties": {
+						"facility": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/facility",
+							"type": "string",
+							"title": "Warehouse",
+							"description": "Warehouse or Facility",
+							"default": ""
+						},
+						"businessUnit": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/businessUnit",
+							"type": "string",
+							"title": "Business Unit",
+							"description": "Business Unit.",
+							"default": ""
+						},
+						"itemID": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/itemID",
+							"type": "string",
+							"title": "Item ID",
+							"description": "Item Identifier.",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"SKU": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/SKU",
+							"type": "string",
+							"title": "SKU",
+							"description": "stock-keeping unit (SKU).",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"sizeDesc": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/sizeDesc",
+							"type": "string",
+							"title": "Dimensions",
+							"description": "Dimensions.",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"description": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/description",
+							"type": "string",
+							"title": "Item Description",
+							"description": "Item Description.",
+							"default": ""
+						},
+						"qtyAvailable": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/qtyAvailable",
+							"type": "string",
+							"title": "Available Quantity",
+							"description": "Available Quantity",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"qtyUnavailable": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/qtyUnavailable",
+							"type": "string",
+							"title": "Unavailable Quantity",
+							"description": "Unavailable Quantity",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"qtyCommit": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/qtyCommit",
+							"type": "string",
+							"title": "Committed Quantity",
+							"description": "Committed Quantity",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"qtyAllocated": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/qtyAllocated",
+							"type": "string",
+							"title": "Allocated Quantity",
+							"description": "Allocated Quantity.",
+							"default": "",
+							"examples": [
+								""
+							]
+						},
+						"totalBOH": {
+							"$id": "#/properties/stockAdjustments/items/anyOf/0/properties/totalBOH",
+							"type": "string",
+							"title": "Beginning on Hand",
+							"description": "Beginning on Hand",
+							"default": "",
+							"examples": [
+								""
+							]
+						}
+					},
+					"additionalProperties": true
+				}]
+			}
+		}
+	},
+	"additionalProperties": true
+}

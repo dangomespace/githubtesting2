@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="create-asn-flow" doc:id="6ee998ff-2b9c-45bc-8ca9-661c0d4a072a" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="33fb9fa7-08b8-4086-9236-9cb4aa194a58" message="#[vars.contextID]" category="Got contextID"/>
+		<flow-ref doc:name="invalid-asn-code" doc:id="6c58e410-c290-453a-a8c8-156458cdd423" name="invalid-asn-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="e403250d-1b49-4744-b117-0670a78808e0" />
+		<ee:transform doc:name="dataTime &amp; dataDate" doc:id="65d47bd1-08e6-4cb7-8760-7278ab0dc1c9">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dataTime"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.asn.header.delivery.endTime,
+	dStartTime: payload.asn.header.delivery.startTime,
+	pEndTime: payload.asn.header.pickUp.endTime,
+	pStartTime: payload.asn.header.pickUp.startTime
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndDate : payload.asn.header.delivery.endDate,
+	dStartDate: payload.asn.header.delivery.startDate,
+	pEndDate: payload.asn.header.pickUp.endDate,
+	pStartDate: payload.asn.header.pickUp.startDate
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="377d675a-66ff-41be-8919-6769ebda26c1" name="validate-time" />
+		<flow-ref doc:name="validate-date" doc:id="b77c1f2e-363b-4bc6-bfe2-570ec550532b" name="validate-date" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="116cf72d-3f21-46f6-b712-8f5fb4efec58" />
+		<ee:transform doc:name="concat-values" doc:id="3506b50d-8cc7-4ba2-972b-c06da3e80142" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="concatValues" ><![CDATA[%dw 2.0
+output application/json
+fun nonEmptyCheck(text) = if (text == null or text == "") false else true
+---
+{
+	deliveryEndDTTM: if (nonEmptyCheck(payload.asn.header.delivery.endDate) and nonEmptyCheck(payload.asn.header.delivery.endTime)) (payload.asn.header.delivery.endDate ++ ", " ++ payload.asn.header.delivery.endTime) else "", 
+	deliveryStartDTTM: if (nonEmptyCheck(payload.asn.header.delivery.startDate) and nonEmptyCheck(payload.asn.header.delivery.startTime)) (payload.asn.header.delivery.startDate ++ ", " ++ payload.asn.header.delivery.startTime) else "",
+	pickUpEndDTTM: if (nonEmptyCheck(payload.asn.header.pickUp.endDate) and nonEmptyCheck(payload.asn.header.pickUp.endTime)) (payload.asn.header.pickUp.endDate ++ ", " ++ payload.asn.header.pickUp.endTime) else "",
+	pickUpStartDTTM: if (nonEmptyCheck(payload.asn.header.pickUp.startDate) and nonEmptyCheck(payload.asn.header.pickUp.startTime)) (payload.asn.header.pickUp.startDate ++ ", " ++ payload.asn.header.pickUp.startTime) else ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a543c100-63d4-4ce7-9046-6a7254e8f119" message="#[payload]" category="after concat" />
+		<ee:transform doc:name="asn-to-wsdl" doc:id="7d6c7182-599b-40cb-8024-686ee11f1e00">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+       ns0#createASN: {
+             contextId: vars.contextID,
+             asnData: {
+                    asnType: payload.asn.header.asnType,
+                    deliveryEndDTTM: vars.concatValues.deliveryEndDTTM,
+                    deliveryStartDTTM: vars.concatValues.deliveryStartDTTM ,
+                    destinationFacility: payload.asn.header.destinationFacility,
+                    originFacility: payload.asn.header.originFacility,
+                    originType: payload.asn.header.originType,
+                    pickUpEndDTTM: vars.concatValues.pickUpEndDTTM ,
+                    pickUpStartDTTM: vars.concatValues.pickUpStartDTTM,
+                    shipment: payload.asn.header.shipmentNo,
+                    status: payload.asn.header.status,
+                    (payload.asn.asnDetails map ( asnDetail , indexOfAsnDetail ) -> {
+                          asnDetails: {
+                                 batch: asnDetail.asnLines.batch,
+                                 businessPartner: asnDetail.asnLines.businessPartner,
+                                 countryOfOrgin: asnDetail.asnLines.countryOforigin,
+                                 itemName: asnDetail.asnLines.itemName,
+                                 purchaseOrder: asnDetail.poNumber,
+                                 purchaseOrderLineItemNbr: asnDetail.asnLines.LineItemNo,
+                                 shipppedQuantity: asnDetail.asnLines.shippedQuantity
+                          },
+                          asnKey: {
+                                 asnNumber: payload.asn.header.asnNumber,
+                                 businessUnit: payload.asn.header.businessUnit
+                          }
+                    })
+             }
+       }
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b2814374-e299-4232-a9ec-12fc63ff5ae8" message="#[payload]" category="before consume"/>
+		<wsc:consume operation="${secure::wsc.asn-service.operation.create-asn}" doc:name="create-asn-consume" doc:id="511dab13-1998-4017-896a-3230210a2afe" config-ref="wsc-asn-manhattan" />
+		<logger level="INFO" doc:name="Logger" doc:id="bec6178f-5474-472d-895b-aaec190d45ec" message="#[payload]" category="after transform"/>
+		<ee:transform doc:name="response-body" doc:id="a3dc6fd8-c358-41d4-bf62-44f970102325">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.createASNResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="create-asn-flow" doc:id="132f007a-1d1d-4b74-b1d9-462a31e92c4a" message="#[payload]" category="output of create asn consume"/>
+		<logger level="INFO" doc:name="wmos-validation" doc:id="d2f897b0-bd91-4fac-bae9-17f40c133cd1" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="c09c78e5-3578-439b-91ec-19ef064d0a6d" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="55422174-ffb4-4140-9b15-c50ec7eb64ba" name="response-validation-flow" />
+		<logger level="INFO" doc:name="successful " doc:id="d322bd40-c390-409f-aa14-b08a06d4cd38" message="Success" />
+	</sub-flow>
+	<sub-flow name="update-asn-flow" doc:id="3c74da74-8288-44bf-a388-bfa58de2c4c8">
+		<logger level="INFO" doc:name="got-contextID" doc:id="b406980d-273b-4096-af84-d50d58c241dc" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-asn-code" doc:id="f41f1872-df90-4767-a243-35dd337e6a7e" name="invalid-asn-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="54e5ab53-5c19-4d12-a294-bd2ebb0d8264" />
+		<ee:transform doc:name="dataTime &amp; dataDate" doc:id="76812c14-eb56-4b16-ad89-603364b149b6">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dataTime"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.asn.header.delivery.endTime,
+	dStartTime: payload.asn.header.delivery.startTime,
+	pEndTime: payload.asn.header.pickUp.endTime,
+	pStartTime: payload.asn.header.pickUp.startTime
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndDate : payload.asn.header.delivery.endDate,
+	dStartDate: payload.asn.header.delivery.startDate,
+	pEndDate: payload.asn.header.pickUp.endDate,
+	pStartDate: payload.asn.header.pickUp.startDate
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="2aa19457-b08d-4afa-b407-05cbed6fe546" name="validate-time" />
+		<flow-ref doc:name="validate-date" doc:id="85f3e789-5258-40e2-96fc-a3c279700f27" name="validate-date" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="55779516-7b67-4b74-837f-ce5d2724018e" />
+		<flow-ref doc:name="validation-asn-flow Reference" doc:id="3b621d00-34f1-4595-9439-62a25f8f7723" name="validation-asn"/>
+		<ee:transform doc:name="concat-values" doc:id="d4589326-9c9f-4e84-89fa-c272766fbc3e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="concatValues" ><![CDATA[%dw 2.0
+output application/json
+fun nonEmptyCheck(text) = if (text == null or text == "") false else true
+---
+{
+	deliveryEndDTTM: if (nonEmptyCheck(payload.asn.header.delivery.endDate) and nonEmptyCheck(payload.asn.header.delivery.endTime)) (payload.asn.header.delivery.endDate ++ ", " ++ payload.asn.header.delivery.endTime) else "",
+	deliveryStartDTTM: if (nonEmptyCheck(payload.asn.header.delivery.startDate) and nonEmptyCheck(payload.asn.header.delivery.startTime)) (payload.asn.header.delivery.startDate ++ ", " ++ payload.asn.header.delivery.startTime) else "",
+	pickUpEndDTTM: if (nonEmptyCheck(payload.asn.header.pickUp.endDate) and nonEmptyCheck(payload.asn.header.pickUp.endTime)) (payload.asn.header.pickUp.endDate ++ ", " ++ payload.asn.header.pickUp.endTime) else "",
+	pickUpStartDTTM: if (nonEmptyCheck(payload.asn.header.pickUp.startDate) and nonEmptyCheck(payload.asn.header.pickUp.startTime)) (payload.asn.header.pickUp.startDate ++ ", " ++ payload.asn.header.pickUp.startTime) else ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="asn-to-wsdl" doc:id="a58e8909-744a-46d2-a73d-3aa866fe39f7">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#updateASN: {
+		contextId: vars.contextID,
+		asnData: {
+			asnType: payload.asn.header.asnType,
+			deliveryEndDTTM: vars.concatValues.deliveryEndDTTM,
+			deliveryStartDTTM: vars.concatValues.deliveryStartDTTM,
+			destinationFacility: payload.asn.header.destinationFacility,
+			originFacility: payload.asn.header.originFacility,
+			originType: payload.asn.header.originType,
+			pickUpEndDTTM: vars.concatValues.pickUpEndDTTM,
+			pickUpStartDTTM: vars.concatValues.pickUpStartDTTM,
+			shipment: payload.asn.header.shipmentNo,
+			status: payload.asn.header.status,
+			(payload.asn.asnDetails map ( asnDetail , indexOfAsnDetail ) -> {
+				asnDetails: {
+					batch: asnDetail.asnLines.batch,
+					businessPartner: asnDetail.asnLines.businessPartner,
+					countryOfOrgin: asnDetail.asnLines.countryOforigin,
+					itemName: asnDetail.asnLines.itemName,
+					purchaseOrder: asnDetail.poNumber,
+					purchaseOrderLineItemNbr: asnDetail.asnLines.LineItemNo,
+					shipppedQuantity: asnDetail.asnLines.shippedQuantity
+				},
+				asnKey: {
+					asnNumber: payload.asn.header.asnNumber,
+					businessUnit: payload.asn.header.businessUnit
+				}
+			})
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="update-asn-consume" doc:id="818651a8-207a-4ae7-8f15-d89631fdbc1f" operation="${secure::wsc.asn-service.operation.update-asn}" config-ref="wsc-asn-manhattan"/>
+		<ee:transform doc:name="Transform Message" doc:id="fa923fe6-73f8-497a-a303-8e09ef10ff7b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="response-body" doc:id="da053a7c-57f3-420e-9c4d-e0d3d48afaab">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.updateASNResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="update-asn-flow" doc:id="df1aeb59-377d-4afa-9df9-ae1ecd170d0d" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="wmos-validation" doc:id="65488bdc-8fb4-4f4b-8545-b7cfedfddd94" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="cca88c77-a45e-40c2-b1ca-6f086faf7b22" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="94b9c0a9-8ab1-4cb2-b325-195533d38d4c" name="response-validation-flow" />
+		<logger level="INFO" doc:name="successful " doc:id="72f9763c-084a-45fa-8643-a9b3c1822374" message="Success" />
+	</sub-flow>
+	<sub-flow name="get-quantityreceived-flow" doc:id="6d01443c-8d87-450f-a550-3b29f2d44a22">
+		<logger level="INFO" doc:name="got-contextID" doc:id="34fb013b-596d-47f7-a7ba-79592ef87bb8" message="#[vars.contextID]"/>
+		<flow-ref doc:name="invalid-asn-code" doc:id="64c1e67e-eae6-4498-b726-1740cfac34e5" name="invalid-asn-code" />
+		<ee:transform doc:name="asn-to-wsdl" doc:id="dabd008d-ab7d-48da-93b0-e07f2a89f05d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#getQtyReceivedByASN: {
+		contextId: vars.contextID,
+		asn: vars.asnNumber
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="5b086b94-7812-47d9-840a-3af82e343aff" >
+			<wsc:consume operation="${secure::wsc.receiving-service.operation.get-qty}" doc:name="get-qty-consume" doc:id="b6921a51-ede9-4835-9025-286e7e0b1a10" config-ref="wsc-asn-qty-lpn-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="8dc895c4-d443-45d3-8651-bd48b22ea99b" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="16e2e31d-6cab-47bc-b58a-0325b650f4cc" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="5ec5de23-e714-4c64-8e6d-145459437fd9" message="#[payload]" category="Out of try scope"/>
+		<ee:transform doc:name="response-body" doc:id="db2a5276-06a8-4900-bee3-e96efc598c99">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.getQtyReceivedByASNResponse.return.Value]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="return qty information" doc:id="d1723946-d016-462d-8cc4-dcf5a89a99ac">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload default 0]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<logger level="INFO" doc:name="get-qtty-flow" doc:id="2763c8ce-ffae-4e16-9873-17f560997c70" message="In the get qty  flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="8c41657f-984b-4723-9e89-21572d98a195" message="v" />
+		<logger level="INFO" doc:name="successful " doc:id="5c0448e4-cc96-4c0d-bf24-b2fee8fbcc07" message="Success" />
+	</sub-flow>
+	<sub-flow name="get-lpnreceived-flow" doc:id="db654602-cd8d-46ac-8f6f-4b46e191ec49" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="e416c6c6-708e-422b-b3bc-8d037b6ded73" message="#[vars.contextID]"/>
+		<flow-ref doc:name="invalid-asn-code" doc:id="82c36f64-b926-4259-8648-346a27e7ad5d" name="invalid-asn-code" />
+		<ee:transform doc:name="asn-to-wsdl" doc:id="5d64db66-edca-4f76-9bdb-6c763748bd0a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#getLPNReceivedByASN: {
+		contextId: vars.contextID,
+		asn: vars.asnNumber
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="32a03bf3-6b00-4222-913a-88568f403b91" >
+			<wsc:consume operation="${secure::wsc.receiving-service.operation.get-lpn}" doc:name="get-lpn-consume" doc:id="6828acd1-2765-4d14-bd2c-2bde0812dd7f" config-ref="wsc-asn-qty-lpn-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="4240167a-c9c2-4ab6-a4f5-4185c24b103a" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="bf2090a8-f557-43b8-a294-f285b1f474e3" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="79b5bbaf-0f94-4f6e-8bab-71608cf7a822" message="#[payload]" category="out of try scope"/>
+		<ee:transform doc:name="response-body" doc:id="59f9e808-2b9f-4531-a3f0-14849b7e92cd">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.getLPNReceivedByASNResponse.return.Value]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="return lpn information" doc:id="0614da9c-3082-4203-9108-fb4a1d1b1f5f">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload default 0]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<logger level="INFO" doc:name="get-lpn-flow" doc:id="8e38e701-7e09-4162-a839-a38df766d2b8" message="In the get lpn order flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="49b761b7-77fa-4f15-b4b0-86abd2fb01c7" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="successful " doc:id="a68e6ba6-ce64-48ac-9161-ed5b885e052f" message="Success" />
+	</sub-flow>
+	<sub-flow name="get-asn-flow" doc:id="3f3ca118-287a-4cdc-a58e-ea63e5194f9e" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="1b80b222-d4af-4452-90c7-a6881b5bfb9b" message="vars.contextID" />
+		<flow-ref doc:name="invalid-asn-code" doc:id="b822d3a7-fd82-4db8-8cd7-7c4b9d86fbaf" name="invalid-asn-code" />
+		<ee:transform doc:name="asn-to-wsdl" doc:id="908fcf9b-6077-42bc-be1e-7d937d896665" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#getASN: {
+		contextId: vars.contextID,
+		asnKey: {
+			asnNumber: vars.asnNumber,
+			businessUnit: vars.businessUnit
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="c5a73b82-6c0f-4164-b64a-7c6f45f305b9" >
+			<wsc:consume doc:name="get-asn-consume" doc:id="92da23ee-7f16-4e31-9553-bc785a1ad3b8" operation="${secure::wsc.asn-service.operation.get-asn}" config-ref="wsc-asn-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="216b2a90-c852-4359-a157-d89b79395643" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="117f7108-7e03-4bbb-8a4b-b76f749fa766" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="response-body" doc:id="d941bd82-1668-4b3d-a15b-ccfd1cbad145" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.getASNResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="09ee40bc-afe5-4108-9709-71d1f90695be" >
+			<when expression="#[payload == null]">
+				<logger level="INFO" doc:name="Logger" doc:id="a6d5e8a1-79c2-4249-9b80-9fb46c15c96b" message="In the if choice" />
+				<set-payload value="#[{}]" doc:name="Set Payload" doc:id="99eb1340-6e07-4c92-a621-ccca782acefc" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="f40a7067-06f8-4472-af9e-4db6f429ea38" message="in the default choice" />
+				<ee:transform doc:name="return asn details" doc:id="3e56691c-aae0-4e79-b23c-98a7cb9b830f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="bad4cb41-8f8c-4ae6-ae39-523d5d5f677f" message="#[payload]" category="after choice"/>
+		<logger level="INFO" doc:name="get-asn-flow" doc:id="f83a09aa-caa5-49cf-a782-de00580daf34" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="7a0f8fc2-f438-4bb3-9dad-2286d0e23e69" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="467c57c0-8fa9-4705-8a65-cc449d462501" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="cfe29863-f3d4-430b-83c7-99fb4f73b13d" message="Success" />
+	</sub-flow>
+	<sub-flow name="validation-asn" doc:id="eadd7c3f-519d-4e6d-a00c-c492bb10dfbf">
+		<validation:is-true doc:name="validate-asn-number" doc:id="f49d571c-63b5-4ad1-bcb3-32b412ed2c17" expression="#[vars.asnNumber == payload.asn.header.asnNumber]" message="asnNumber does not match asnNumber" />
+	</sub-flow>
+	<sub-flow name="invalid-asn-code" doc:id="9768c714-02d7-4a18-8907-ce5bd7250ea1" >
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::errorCodes.invalidASN') as Number]" doc:name="invalidCode" doc:id="e7bb89cb-3819-4413-adeb-2fb29a1916be" variableName="invalidCode" />
+	</sub-flow>
+</mule>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<sub-flow name="get-holdings-flow" doc:id="34ae1021-061e-4612-afe5-f8ebc2f2153e" >
+		<try doc:name="Try" doc:id="de96ce21-4a2f-459c-ba88-21f11f9203a6" >
+			<db:select doc:name="Select Holdings" doc:id="7347c6cc-cdb3-409c-a7d2-4f779dfd9182" config-ref="Manhattan_Database_Config">
+			<db:sql><![CDATA[SELECT * FROM WM20TST01.WINC_ECP_STOCK_BALANCE WHERE BusinessUnit = :businessUnit]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+  businessUnit: vars.businessUnit
+}]]]></db:input-parameters>
+		</db:select>
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3b9b343c-7e6c-4bc3-9c40-b793642ba082" >
+					<raise-error doc:name="MTN:DATABASE_ERROR" doc:id="1e791ec7-73c1-4d8d-a517-ec4b4ded9e8d" type="MTN:DATABASE_ERROR" description="#[error.detailedDescription]"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="1a614333-4f40-427d-acad-25dd19f105a1" message="after db call"/>
+		<ee:transform doc:name="payload" doc:id="3ccff84a-4447-4458-8e36-a05ab9649484">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Pascal to Camel case" doc:id="30a32604-4ca2-41a5-b29d-9855e0e8dab0">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	stockAdjustments: payload map ( payload01 , indexOfPayload01 ) -> {
+		facility: payload01.FACILITY,
+		businessUnit: payload01.BUSINESSUNIT,
+		itemID: payload01.ITEM_ID,
+		SKU: payload01.SKU,
+		sizeDesc: payload01.SIZEDESC,
+		description: payload01.DESCRIPTION,
+		qtyAvailable: payload01.QTYAVAILABLE,
+		qtyUnavailable: payload01.QTYUNAVAILABLE,
+		qtyCommit: payload01.QTYCOMMIT,
+		qtyAllocated: payload01.QTYALLOCATED,
+		totalBOH: payload01.TOTALBOH
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f1012d32-6596-4d3b-879a-c7bedcb3cb40" message="#[payload]" category="DATABASE PAYLOAD output for HOLDINGS"/>
+	</sub-flow>
+	<sub-flow name="get-transactions-flow" doc:id="310cbc9c-5728-4bf8-ad1b-a8a41cc58840" >
+		<ee:transform doc:name="dataDate" doc:id="7363e341-884f-489e-922e-3bc9b695eff7">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dataDate"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dateFrom : vars.dateFrom
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-date" doc:id="15721da8-5d01-493f-adbf-8d5633f1ccc4" name="validate-date" />
+		<logger level="INFO" doc:name="businesUnit" doc:id="d669d6cf-f07a-431d-bdb6-6b39ef5aab64" message="#[vars.businessUnit]" category="businesUnit sent in"/>
+		<logger level="INFO" doc:name="dateFrom" doc:id="fd30c717-6817-4fc2-9bc1-2e8c75dcb9ee" message="#[vars.dateFrom]" category="dateFrom sent in"/>
+		<try doc:name="Try" doc:id="88225e96-592e-41dc-a294-80549283675d" >
+			<db:select doc:name="Select Transactions" doc:id="22d67909-2d30-454c-8a17-8f628dd8081d" config-ref="Manhattan_Database_Config">
+				<db:sql><![CDATA[SELECT * FROM winc_ecp_inv_trans WHERE BU = :businessUnit and to_char("Processed", 'DD/MM/YYYY') >= :dateFrom
+]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+  businessUnit: vars.businessUnit,
+  dateFrom: vars.dateFrom
+
+}]]]></db:input-parameters>
+			</db:select>
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="aecf4c13-c25d-4c20-8414-4460f9a5f174" >
+					<raise-error doc:name="MTN:DATABASE_ERROR" doc:id="77765fbf-522a-49db-bb57-103722d05b34" type="MTN:DATABASE_ERROR" description="#[error.detailedDescription]"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="payload" doc:id="55a6fac1-206d-4e49-9af8-a6bdd1cf5cab">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="afa8f640-2c8c-436a-a92f-83532f959c8d" message="#[payload]" category="DATABASE OUTPUT PAYLOAD TRSANSACTION"/>
+		<ee:transform doc:name="Pascal to Camel case" doc:id="2bc0987a-a5d8-4ff4-82f2-f5d04bc54589" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere" 
+---
+{
+	stockTransactions: payload map ( payload01 , indexOfPayload01 ) -> {
+		warehouse: payload01.Warehouse,
+		businessUnit: vars.businessUnit,
+		transactionType: payload01.TransactionType,
+		transactionCode: payload01.TransactionCode,
+		transactionNumber: payload01.TransactionNumber,
+		sequenceNumber: payload01.SequenceNumber,
+		reasonCode: payload01.ReasonCode,
+		actionCode: payload01.ActionCode,
+		SKU: payload01.SKU,
+		LPN: payload01.LPN,
+		inventoryType: payload01.InventoryType,
+		batchNumber: payload01.BatchNumber,
+		adjustmentType: payload01.AdjustmentType,
+		adjustmentQuantity: payload01.AdjustmentQuantity,
+		processedDateTime: payload01.Processed
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="successful " doc:id="5c096d10-b250-4fdf-9c47-afd33d63c194" message="Success" />
+	</sub-flow>
+</mule>

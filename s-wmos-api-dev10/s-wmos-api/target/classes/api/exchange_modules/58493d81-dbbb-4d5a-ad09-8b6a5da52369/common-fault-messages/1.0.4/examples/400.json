@@ -1,0 +1,7 @@
+{
+  "statusCode": 400,
+  "statusType": "Bad request",
+  "statusMessage": "The request could not be understood by the server due to malformed syntax.",
+  "statusDetails": "The client SHOULD NOT repeat the request without modifications.",
+  "transactionId": "3F2504E0-4F89-11D3-9A0C-0305E82C3301"
+}

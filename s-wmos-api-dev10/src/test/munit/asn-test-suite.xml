@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="asn-test-suite.xml" />
+	<munit:test name="post:\inbound\asn:application\json:s-wmos-api-config-test-happy-test" doc:id="e07d0708-7958-4765-9c68-d7f6280c7e57">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="6084bdfa-c796-46f6-9a32-b9ba8dd68979">
+				<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_create_asn.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+				</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="582ac3df-bba9-4174-9191-c450fc8cc219" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when-create-asn-consume" doc:id="e91cef78-a98b-4080-80cc-879760ffa399" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="create-asn-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="70da1f88-6b7b-47d6-9c03-587d91d7aa72" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to post:\inbound\asn:application\json:s-wmos-api-config" doc:id="847471a2-f5d9-4404-bfcf-a5e52049ec71" name="post:\inbound\asn:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="6500ec81-9c58-44e4-a2ee-d2621a661024" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import asn::assert_payload_create_asn_happy
+---
+assert_payload_create_asn_happy::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="put:\inbound\asn\(asnNumber):application\json:s-wmos-api-config-test" doc:id="675889d0-6904-4800-ba75-563e4bcce2d4">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="cf36b606-c4fd-4112-b3f7-4ff103e1e155">
+					<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_uri.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="07f46103-09b2-4b04-a897-5b9d408a43e0" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-update-asn-consume" doc:id="42e77ff5-a230-40ea-b4ea-9d43bb417c67" processor="wsc:consume">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="update-asn-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="822a3e9c-aba6-46b0-b580-59302e351c6d" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to put:\inbound\asn\(asnNumber):application\json:s-wmos-api-config" doc:id="0c884117-6cdb-4d29-ac9a-555a11256392" name="put:\inbound\asn\(asnNumber):application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="e8810b2c-72c7-448f-b012-7ac36bb30dfd" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import asn::assert_payload_update_asn_happy
+---
+assert_payload_update_asn_happy::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="get:\inbound\asn:application\json:s-wmos-api-config-test-happy-test" doc:id="87fd423b-e9c2-4ae9-848f-37806ac7e0c7">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="4dca20b2-5d6a-4795-b36c-8301753f36df">
+					<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_uri.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+				</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="5302dc71-3d73-4299-a1a2-d5d13dd47945" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-get-asn-consume" doc:id="cc595f7f-0758-4bfa-9947-300535cf39da" processor="wsc:consume">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="get-asn-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_asn_details.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="bb3002dd-4581-4560-a459-6b19118e616e" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\inbound\asn\(asnNumber):s-wmos-api-config" doc:id="080e6244-eb8a-4f8b-a897-151eaf4b8ad5" name="get:\inbound\asn\(asnNumber):s-wmos-api-config" />
+			</munit:execution>
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert payload" doc:id="59d7ddf0-611d-45f8-9040-14a409036c8c" message="The payload does not match" >
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import asn::assert_expression_payload_asn_details
+---
+assert_expression_payload_asn_details::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="getqty:\inbound\asn:application\json:s-wmos-api-config-test-happy-test" doc:id="7c564bf7-9d87-4781-a26f-104437b8b930">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="988941b3-3776-488a-befe-06e4e6f89be4">
+				<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_uri.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+				</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="b3f45f18-609e-43c6-8433-1c65fafadf2b" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-get-qty-consume" doc:id="2bea14b4-a787-48ed-8524-2153e5f2eb8f" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="get-qty-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_qty_value.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="eb5441a4-1bd4-4d01-a7f8-9ba405b28136" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\inbound\asn\(asnNumber)\quantityRecieved:s-wmos-api-config" doc:id="0c00bef6-287d-4137-872e-4743d3442281" name="get:\inbound\asn\(asnNumber)\quantityReceived:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="eb6e2396-29de-4ba1-846f-e2322f31a07c" actual="#[payload]" expected="#[1 as Number]"/>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="getlpn:\inbound\asn:application\json:s-wmos-api-config-test-happy-test" doc:id="74d50568-130e-4a3f-921b-f5d8408bfc33">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="2ad7d540-d4f7-43b6-82c0-ded3ec9c1f0a">
+					<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_uri.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+				</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="ba2b4772-55ee-47f6-863d-7a7b2a10eeb4" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+					<munit-tools:variables>
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-get-lpn-consume" doc:id="f52c0874-fb8a-4490-8ada-27b7f295d40a" processor="wsc:consume">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="get-lpn-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_lpn_value.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="595afa3c-044a-47b9-9aad-b67673a6b20c" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\inbound\asn\(asnNumber)\lpnRecieved:s-wmos-api-config" doc:id="060eadd5-8f00-4778-97d0-e37c4406b218" name="get:\inbound\asn\(asnNumber)\lpnReceived:s-wmos-api-config" />
+			</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="971c51be-a541-4ee5-80d8-515278c3be54" actual="#[payload]" expected="#[1 as Number]" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="get:\inbound\asn:application\json:s-wmos-api-config-test-happy-test-no-asn" doc:id="b32e812d-b6e3-40f0-aa79-2e907c4073e8">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="58a83184-17e5-42ad-822e-a7a210c3d760">
+					<munit:payload value="#[output application/json --- readUrl('classpath://asn\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+					<munit:attributes value="#[readUrl('classpath://asn\set-event_attributes_uri.dwl')]" />
+					<munit:variables>
+						<munit:variable key="outboundHeaders" value="#[readUrl('classpath://asn\set-event_variable_.dwl')]" />
+					</munit:variables>
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="e4c2a758-ea4e-4299-a28e-7ffe00f16c21" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:payload value="#[output application/json --- readUrl('classpath://asn\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:attributes value="#[readUrl('classpath://asn\mock_attributes.dwl')]" />
+						<munit-tools:variables>
+							<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						</munit-tools:variables>
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when-get-asn-consume" doc:id="215eca67-15a1-49f5-87c0-caa5f0253671" processor="wsc:consume">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="get-asn-consume" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when-response-validation-flow " doc:id="5cc1543e-b1cf-4268-848d-9cd56d0a05f8" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\inbound\asn\(asnNumber):s-wmos-api-config" doc:id="e4007496-d363-4084-8ced-668d016db2b7" name="get:\inbound\asn\(asnNumber):s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="c58f5348-e74e-4845-965b-62144cb2decf" actual="#[payload]" expected="#[{}]" />
+			</munit:validation>
+		</munit:test>
+
+
+</mule>

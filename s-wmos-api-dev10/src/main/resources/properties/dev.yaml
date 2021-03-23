@@ -1,0 +1,100 @@
+api:
+ id: "16635465"
+ domain:  "s-wmos-api-dev"  
+ 
+https:
+ frequency : "10000"
+ retry : "3"
+ timeout : "60000"
+ tls:
+  keyStorePassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  privateKeyPassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  filePath: "certificates/dev-keystore.jks"  
+  
+os: 
+  ttl: "5"
+  expInterval: "150"
+  
+#WSC services
+wsc:
+  timeout: "60000"
+  asn-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/ASNService?wsdl"
+    service: "ASNService"
+    port: "SOAASNServiceWrapperPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/ASNService"
+    soap-action: ""    
+    operation:
+     create-asn: "createASN"
+     update-asn: "updateASN"
+     get-asn: "getASN"
+     
+  receiving-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/ReceivingService?wsdl"
+    service: "ReceivingService"
+    port: "SOAReceivingServiceWrapperPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/ReceivingService"
+    soap-action: ""    
+    operation:
+     get-qty: "getQtyReceivedByASN"
+     get-lpn: "getLPNReceivedByASN"
+     
+  product-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/ItemService?wsdl"
+    service: "ItemService"
+    port: "SOAItemServiceWrapperPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/ItemService"
+    soap-action: ""    
+    operation:
+     create-item: "createItem"
+     update-item: "updateItem"
+     get-item: "getItem"
+     list-item: "listItem"
+     delete-item: "deleteItem"
+
+  purchaseorder-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/PurchaseOrderService?wsdl"
+    service: "PurchaseOrderService"
+    port: "SOAPurchaseOrderServiceWrapperPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/PurchaseOrderService"
+    soap-action: ""    
+    operation:
+     cancel-purchaseorder: "cancelPurchaseOrder"
+     create-purchaseorder: "createPurchaseOrder"
+     close-purchaseorder:  "closePurchaseOrder"
+     update-purchaseorder: "updatePurchaseOrder"
+          
+  distributionorder-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/DistributionService?wsdl"
+    service: "DistributionService"
+    port: "SOADistributionServiceWrapperPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/DistributionService"
+    soap-action: ""    
+    operation:
+     create-distribution: "createDistributionOrder"
+     update-distribution: "updateDistributionOrder"
+     get-distribution: "getDistributionOrder"
+     delete-distribution: "cancelDistributionOrder"
+     list-distribution: "listDistributionOrders"
+
+  authentication-service:
+    wsdl-location: "https://cloudfulfilment-test.wincanton.co.uk/services/SecuritySOAPService?wsdl"
+    service: "SecurityWebService"
+    port: "SecurityServiceImplPort"
+    address: "https://cloudfulfilment-test.wincanton.co.uk/services/SecuritySOAPService"
+    soap-action: ""
+    operation:
+      signIn: "signIn"
+      signOut: "signOut"
+      getUserDetails: "getUserDetails"
+      
+errorCodes: 
+  invalidASN: "112800003"
+  invalidDO: "112800006"
+  invalidPO: "789"
+  invalidProduct: "123"
+
+authentication:
+ 3e3bffa4cddd4bc2b4f05934e7b0e568:
+                          username: "![jCD1Z777uJU=]"
+                          password: "![imHfwTWCR3jnXk1IMBEBJg==]"   

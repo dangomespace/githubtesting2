@@ -1,0 +1,37 @@
+{
+  "asn": {
+    "header": {
+      "asnNumber": "100039",
+      "asnType": "",
+      "businessUnit": "100",
+      "originFacility": "",
+      "originType": "Manufacturing Plant",
+      "destinationFacility": "01",
+      "shipmentNo": "",
+      "status": "20",
+      "pickUp": {
+        "startDate": "14/01/2020",
+        "startTime": "15:00:00",
+        "endDate": "14/02/2020",
+        "endTime": "15:00:00"
+      },
+      "delivery": {
+        "startDate": "14/01/2020",
+        "startTime": "15:00:00",
+        "endDate": "14/02/2020",
+        "endTime": "15:00:00"
+      }
+    },
+    "asnDetails": [{
+	              "poNumber":"100000",
+	              "asnLines": [{
+	                  "LineItemNo": "1",
+	                  "itemName": "1001",
+	                  "shippedQuantity": 200.0,
+	                  "batch": "",
+	                  "businessPartner": "",
+	                  "countryOforigin": "" 
+                  }]
+              }]
+    }
+}

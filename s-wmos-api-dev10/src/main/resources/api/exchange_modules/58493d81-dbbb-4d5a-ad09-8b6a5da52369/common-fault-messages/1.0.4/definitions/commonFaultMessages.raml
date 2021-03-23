@@ -1,0 +1,22 @@
+#%RAML 1.0 DataType
+type: object
+displayName: Platform Datatype
+properties:
+    statusCode: 
+      description: Status Code of error
+      type: number
+    statusType: 
+      description: Status Type of error
+      type: string  
+    statusMessage: 
+      description: Status Message of error
+      type: string
+    statusDetails:
+      description: Error details as a string or within a custom object or a list of multiple errors in an array
+      type: string | object | array
+    transactionId: 
+      description: A code to track API calls end to end. A GUID(https://en.wikipedia.org/wiki/Universally_unique_identifier) is highly recommanded. This will lived for the during of a transaction.
+      type: string
+
+example: !include ../examples/404.json
+        

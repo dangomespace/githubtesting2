@@ -1,0 +1,455 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://wincanton.co.uk/product.json",
+	"type": "object",
+	"title": "Product Master",
+	"description": "The Product Master root schema comprises the entire JSON document.",
+	"default": {},
+	"required": [],
+	"properties": {
+		"product": {
+			"$id": "#/properties/product",
+			"type": "object",
+			"title": "Product Master",
+			"description": "Product Master Information",
+			"default": {},
+			"required": [],
+			"properties": {
+				"productDetails": {
+					"$id": "#/properties/product/properties/productDetails",
+					"type": "object",
+					"title": "Product Details",
+					"description": "Product Details",
+					"default": {},
+					"required": [],
+					"properties": {
+						"itemName": {
+							"$id": "#/properties/product/properties/productDetails/properties/itemName",
+							"type": "string",
+							"title": "Name of the ITEM",
+							"description": "Name of the ITEM",
+							"default": ""
+						},
+						"description": {
+							"$id": "#/properties/product/properties/productDetails/properties/description",
+							"type": "string",
+							"title": "Description of the Item",
+							"description": "Description of the Item",
+							"default": ""
+						},
+						"businessUnit": {
+							"$id": "#/properties/product/properties/productDetails/properties/businessUnit",
+							"type": "string",
+							"title": "Business Unit",
+							"description": "Business Unit to which ITEM is attached to",
+							"default": ""
+						},
+						"productClass": {
+							"$id": "#/properties/product/properties/productDetails/properties/productClass",
+							"type": "string",
+							"title": "Product class",
+							"description": "Product class",
+							"default": ""
+						},
+						"protectionLevel": {
+							"$id": "#/properties/product/properties/productDetails/properties/protectionLevel",
+							"type": "string",
+							"title": "Protection Level",
+							"description": "Protection Level",
+							"default": ""
+						},
+						"baseStorageUOM": {
+							"$id": "#/properties/product/properties/productDetails/properties/baseStorageUOM",
+							"type": "string",
+							"title": "Base Storage UOM",
+							"description": "Base storage Unit of Measure",
+							"default": ""
+						},
+						"productBarCode": {
+							"$id": "#/properties/product/properties/productDetails/properties/productBarCode",
+							"type": "string",
+							"title": "Product Barcode",
+							"description": "Barcode of the Product",
+							"default": ""
+						},
+						"supplierProductBarCode": {
+							"$id": "#/properties/product/properties/productDetails/properties/supplierProductBarCode",
+							"type": "string",
+							"title": "Supplier Product Barcode",
+							"description": "Barcode of Supplier Product",
+							"default": ""
+						},
+						"productCosts": {
+							"$id": "#/properties/product/properties/productDetails/properties/productCosts",
+							"type": "array",
+							"title": "Product Costs information",
+							"description": "Costs associated with the product",
+							"default": [],
+							"additionalItems": true,
+							"items": {
+								"$id": "#/properties/product/properties/productDetails/properties/productCosts/items",
+								"anyOf": [{
+									"$id": "#/properties/product/properties/productDetails/properties/productCosts/items/anyOf/0",
+									"type": "object",
+									"title": "Cost lines",
+									"description": "Product Cost Details",
+									"default": {},
+									"required": [],
+									"properties": {
+										"costType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productCosts/items/anyOf/0/properties/costType",
+											"type": "string",
+											"title": "Type of the Cost",
+											"description": "Type of the Cost",
+											"default": ""
+										},
+										"currencyCode": {
+											"$id": "#/properties/product/properties/productDetails/properties/productCosts/items/anyOf/0/properties/currencyCode",
+											"type": "string",
+											"title": "Currency Code",
+											"description": "Currency Code",
+											"default": ""
+										},
+										"displayUOM": {
+											"$id": "#/properties/product/properties/productDetails/properties/productCosts/items/anyOf/0/properties/displayUOM",
+											"type": "string",
+											"title": "Display UOM",
+											"description": "Unit of Measure",
+											"default": ""
+										},
+										"unitCost": {
+											"$id": "#/properties/product/properties/productDetails/properties/productCosts/items/anyOf/0/properties/unitCost",
+											"type": "number",
+											"title": "Unit Cost",
+											"description": "Unit Cost"
+										}
+									},
+									"additionalProperties": true
+								}]
+							}
+						},
+						"productPrice": {
+							"$id": "#/properties/product/properties/productDetails/properties/productPrice",
+							"type": "array",
+							"title": "Product Price information",
+							"description": "Product price information",
+							"default": [],
+							"additionalItems": true,
+							"items": {
+								"$id": "#/properties/product/properties/productDetails/properties/productPrice/items",
+								"anyOf": [{
+									"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0",
+									"type": "object",
+									"title": "Product price information",
+									"description": "Product price information",
+									"default": {},
+									"required": [],
+									"properties": {
+										"channelType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/channelType",
+											"type": "string",
+											"title": "Type of Channel",
+											"description": "Type of Channel",
+											"default": ""
+										},
+										"currencyCode": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/currencyCode",
+											"type": "string",
+											"title": "Currency Code",
+											"description": "Currency Code",
+											"default": ""
+										},
+										"displayUOM": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/displayUOM",
+											"type": "string",
+											"title": "Display UOM",
+											"description": "Unit of Measure",
+											"default": ""
+										},
+										"priceType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/priceType",
+											"type": "string",
+											"title": "Type of Price",
+											"description": "Type of Price",
+											"default": ""
+										},
+										"retailPrice": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/retailPrice",
+											"type": "number",
+											"title": "Retail Price",
+											"description": "Retail Price",
+											"default": 0
+										},
+										"unitPrice": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPrice/items/anyOf/0/properties/unitPrice",
+											"type": "number",
+											"title": "Unit Price",
+											"description": "Unit Price",
+											"default": 0
+										}
+									},
+									"additionalProperties": true
+								}]
+							}
+						},
+						"facilities": {
+							"$id": "#/properties/product/properties/productDetails/properties/facilities",
+							"type": "array",
+							"title": "Facilities",
+							"description": "Facilities",
+							"default": [],
+							"additionalItems": true,
+							"items": {
+								"$id": "#/properties/product/properties/productDetails/properties/facilities/items",
+								"anyOf": [{
+									"$id": "#/properties/product/properties/productDetails/properties/facilities/items/anyOf/0",
+									"type": "object",
+									"title": "Facilities",
+									"description": "Facilities",
+									"default": {},
+									"required": [],
+									"properties": {
+										"facility": {
+											"$id": "#/properties/product/properties/productDetails/properties/facilities/items/anyOf/0/properties/facility",
+											"type": "string",
+											"title": "Facility Name",
+											"description": "Facility Name",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}]
+							}
+						},
+						"productPackageData": {
+							"$id": "#/properties/product/properties/productDetails/properties/productPackageData",
+							"type": "object",
+							"title": "Product Packaging information",
+							"description": "Product Packaging information",
+							"default": {},
+							"required": [],
+							"properties": {
+								"productPackage": {
+									"$id": "#/properties/product/properties/productDetails/properties/productPackageData/properties/productPackage",
+									"type": "object",
+									"title": "The productPackage schema",
+									"description": "An explanation about the purpose of this instance.",
+									"default": {},
+									"required": [],
+									"properties": {
+										"packageUOM": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPackageData/properties/productPackage/properties/packageUOM",
+											"type": "string",
+											"title": "Unit of Measure of Package",
+											"description": "Unit of Measure of Package",
+											"default": ""
+										},
+										"quantity": {
+											"$id": "#/properties/product/properties/productDetails/properties/productPackageData/properties/productPackage/properties/quantity",
+											"type": "number",
+											"title": "Quantity",
+											"description": "Quantity",
+											"default": 0
+										}
+									},
+									"additionalProperties": true
+								}
+							},
+							"additionalProperties": true
+						},
+						"productFacilityWmos": {
+							"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos",
+							"type": "array",
+							"title": "Product Facility WMOS Data",
+							"description": "Product Facility WMOS Data",
+							"default": [],
+							"additionalItems": true,
+							"items": {
+								"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items",
+								"anyOf": [{
+									"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0",
+									"type": "object",
+									"title": "Product Facility WMOS Data",
+									"description": "Product Facility WMOS Data",
+									"default": {},
+									"required": [],
+									"properties": {
+										"facility": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/facility",
+											"type": "string",
+											"title": "Facility",
+											"description": "Facility of the Item",
+											"default": ""
+										},
+										"lpnPerTier": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/lpnPerTier",
+											"type": "number",
+											"title": "Number of LPNs",
+											"description": "Number of LPNs in a tier",
+											"default": 0
+										},
+										"defaultWaveProcessType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/defaultWaveProcessType",
+											"type": "number",
+											"title": "Default Wave Process Type",
+											"description": "Default Wave Process Type",
+											"default": 0
+										},
+										"activeMaxUnits": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/activeMaxUnits",
+											"type": "number",
+											"title": "Active Max Units",
+											"description": "Max Units in Active Location",
+											"default": 0
+										},
+										"activeMaxLpns": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/activeMaxLpns",
+											"type": "number",
+											"title": "Active Max LPNs",
+											"description": "Max LPNs in Active Location",
+											"default": 0
+										},
+										"pickMaxLpns": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/pickMaxLpns",
+											"type": "number",
+											"title": "Max LPNs in Pick Location",
+											"description": "Max LPNs in Pick Location",
+											"default": 0
+										},
+										"pickMaxUnits": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/pickMaxUnits",
+											"type": "number",
+											"title": "Max Units in Pick Location",
+											"description": "Max Units in Pick Location",
+											"default": 0
+										},
+										"fifoRange": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/fifoRange",
+											"type": "number",
+											"title": "FIFO range",
+											"description": "FIFO range",
+											"default": 0
+										},
+										"productAverageWeight": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/productAverageWeight",
+											"type": "number",
+											"title": "Average Weight",
+											"description": "Average Weight of the product",
+											"default": 0
+										},
+										"putawayType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/putawayType",
+											"type": "string",
+											"title": "Putaway Type",
+											"description": "Putaway Type",
+											"default": ""
+										},
+										"allocationType": {
+											"$id": "#/properties/product/properties/productDetails/properties/productFacilityWmos/items/anyOf/0/properties/allocationType",
+											"type": "string",
+											"title": "Allocation Type",
+											"description": "Allocation Type",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}]
+							}
+						},
+						"bondedProduct": {
+							"$id": "#/properties/product/properties/productDetails/properties/bondedProduct",
+							"type": "boolean",
+							"title": "Bonded Product flag",
+							"description": "Is it a bonded Product?",
+							"default": false
+						},
+						"seasonalProduct": {
+							"$id": "#/properties/product/properties/productDetails/properties/seasonalProduct",
+							"type": "boolean",
+							"title": "Seasonal Product flag",
+							"description": "Is it a Seasonal Product?",
+							"default": false
+						},
+						"productWmos": {
+							"$id": "#/properties/product/properties/productDetails/properties/productWmos",
+							"type": "object",
+							"title": "Product WMOS information",
+							"description": "Product WMOS information",
+							"default": {},
+							"required": [],
+							"properties": {
+								"batchReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/batchReqd",
+									"type": "string",
+									"title": "Batch requirement",
+									"description": "Is Batch Required?",
+									"default": ""
+								},
+								"cntryOfOrgnReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/cntryOfOrgnReqd",
+									"type": "string",
+									"title": "Country of Origin requirement",
+									"description": "Is Country of Origin Required?",
+									"default": ""
+								},
+								"dateCode": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/dateCode",
+									"type": "string",
+									"title": "Date Code",
+									"description": "Date Code",
+									"default": ""
+								},
+								"dateWindow": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/dateWindow",
+									"type": "string",
+									"title": "Date Window",
+									"description": "Date Window",
+									"default": ""
+								},
+								"expDateReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/expDateReqd",
+									"type": "string",
+									"title": "Expiry Date requirement",
+									"description": "Is Expiry Date Required?",
+									"default": ""
+								},
+								"mfgDateReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/mfgDateReqd",
+									"type": "string",
+									"title": "Manufactured Date requirement",
+									"description": "Is Manufactured Date Required?",
+									"default": ""
+								},
+								"prodStatReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/prodStatReqd",
+									"type": "string",
+									"title": "Product Status requirement",
+									"description": "Is ProductStatus Required?",
+									"default": ""
+								},
+								"promptForVendor": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/promptForVendor",
+									"type": "string",
+									"title": "Prompt for Vendor?",
+									"description": "Should Vendor to be prompted?",
+									"default": ""
+								},
+								"shipByDateReqd": {
+									"$id": "#/properties/product/properties/productDetails/properties/productWmos/properties/shipByDateReqd",
+									"type": "string",
+									"title": "ShipByDate requirement",
+									"description": "Is ShipByDate Required?",
+									"default": ""
+								}
+							},
+							"additionalProperties": true
+						}
+					},
+					"additionalProperties": true
+				}
+			},
+			"additionalProperties": true
+		}
+	},
+	"additionalProperties": true
+}

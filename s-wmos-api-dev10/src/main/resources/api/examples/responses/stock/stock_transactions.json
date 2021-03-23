@@ -1,0 +1,19 @@
+{
+  "stockTransactions": [{
+        "warehouse": "",
+        "businessUnit": "",
+        "transactionType": "",
+        "transactionCode": "",
+        "transactionNumber": "",
+        "sequenceNumber": "",
+        "reasonCode": "",
+        "actionCode": "",
+        "SKU": "",
+        "LPN": "",
+        "inventoryType": "",
+        "batchNumber": "",
+        "adjustmentType": "",
+        "adjustmentQuantity": "",
+        "processedDateTime": ""
+    }]
+}

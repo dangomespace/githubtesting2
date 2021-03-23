@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="create-item-flow" doc:id="97517cfa-ddac-4766-bfbc-8b6bb654c2d8" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="ee8b3152-1a02-4d77-a34a-602ffe901b30" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-product-code" doc:id="b095b1aa-1a4c-4668-ae53-3d46af3a63d1" name="invalid-product-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="28788f0c-9907-4273-9654-0205d53f97a5" />
+		<ee:transform doc:name="product-to-wsdl" doc:id="35f9a384-eb64-4393-93c1-91031bb621bb">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#createItem: {
+		contextId: vars.contextID,
+		itemData: {
+			baseStorageUOM: payload.product.productDetails.baseStorageUOM,
+			bondedProduct: payload.product.productDetails.bondedProduct,
+			description: payload.product.productDetails.description,
+			facility: payload.product.productDetails.facilities.facility,
+			itemBarCode: payload.product.productDetails.productBarCode,
+			(payload.product.productDetails.facilities map ( facility , indexOfFacility ) -> {
+				itemCost: {
+					costType: payload.product.productDetails.productCosts.costType,
+					currencyCode: payload.product.productDetails.productCosts.currencyCode,
+					displayUOM: payload.product.productDetails.productCosts.displayUOM,
+					unitCost: payload.product.productDetails.productCosts.unitCost 
+				},
+				itemFacilityWmos: {
+					activeMaxLpns: payload.product.productDetails.productFacilityWmos.activeMaxLpns,
+					activeMaxUnits: payload.product.productDetails.productFacilityWmos.activeMaxUnits,
+					allocationType: payload.product.productDetails.productFacilityWmos.allocationType,
+					defaultWaveProcessType: payload.product.productDetails.productFacilityWmos.defaultWaveProcessType,
+					facility: payload.product.productDetails.productFacilityWmos.facility,
+					fifoRange: payload.product.productDetails.productFacilityWmos.fifoRange,
+					itemAverageWeight: payload.product.productDetails.productFacilityWmos.productAverageWeight,
+					lpnPerTier: payload.product.productDetails.productFacilityWmos.lpnPerTier,
+					pickMaxLpns: payload.product.productDetails.productFacilityWmos.pickMaxLpns,
+					pickMaxUnits: payload.product.productDetails.productFacilityWmos.pickMaxUnits,
+					putawayType: payload.product.productDetails.productFacilityWmos.putawayType
+				},
+				itemKey: {
+					businessUnit: payload.product.productDetails.businessUnit,
+					itemName: payload.product.productDetails.itemName
+				},
+				itemPackage: {
+					packageUOM: payload.product.productDetails.productPackageData.productPackage.packageUOM,
+					quantity: payload.product.productDetails.productPackageData.productPackage.quantity
+				},
+				itemPrice: {
+					channelType: payload.product.productDetails.productPrice.channelType,
+					currencyCode: payload.product.productDetails.productPrice.currencyCode,
+					displayUOM: payload.product.productDetails.productPrice.displayUOM,
+					priceType: payload.product.productDetails.productPrice.priceType,
+					retailPrice: payload.product.productDetails.productPrice.retailPrice,
+					unitPrice: payload.product.productDetails.productPrice.unitPrice
+				}
+			}),
+			(payload.product.productDetails.productFacilityWmos map ( productFacilityWmo , indexOfProductFacilityWmo ) -> {
+			}),
+			(payload.product.productDetails.productCosts map ( productCost , indexOfProductCost ) -> {
+			}),
+			(payload.product.productDetails.productPrice map ( productPrice , indexOfProductPrice ) -> {
+			}),
+			itemWmos: {
+				batchReqd: payload.product.productDetails.productWmos.batchReqd,
+				cntryOfOrgnReqd: payload.product.productDetails.productWmos.cntryOfOrgnReqd,
+				dateCode: payload.product.productDetails.productWmos.dateCode,
+				dateWindow: payload.product.productDetails.productWmos.dateWindow,
+				expDateReqd: payload.product.productDetails.productWmos.expDateReqd,
+				mfgDateReqd: payload.product.productDetails.productWmos.mfgDateReqd,
+				prodStatReqd: payload.product.productDetails.productWmos.prodStatReqd,
+				promptForVendor: payload.product.productDetails.productWmos.promptForVendor,
+				shipByDateReqd: payload.product.productDetails.productWmos.shipByDateReqd
+			},
+			productClass: payload.product.productDetails.productClass,
+			protectionLevel: payload.product.productDetails.protectionLevel,
+			seasonalProduct: payload.product.productDetails.seasonalProduct,
+			supplierItemBarCode: payload.product.productDetails.supplierProductBarCode
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b6744881-3271-46bb-b4a4-094df2b0d9d7" message="#[payload]" category="before consume"/>
+		<wsc:consume doc:name="create-product-consume" doc:id="cd3ec5c0-9476-447e-97a0-44179bb9f362" config-ref="wsc-product-manhattan" operation="${secure::wsc.product-service.operation.create-item}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8ec580d0-794e-4569-9509-78d4cd43fd84" message="#[payload]" category="after consume"/>
+		<ee:transform doc:name="response-body" doc:id="1310ec2c-08b4-4909-863e-cc167d0fe630">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.createItemResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="create-item-flow" doc:id="c3c59305-ccda-4736-a9a1-dc9dd7c9106d" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="wmos-validation" doc:id="1f42aa6b-3cfe-4504-a45f-9e2137d9b1b8" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="2756c172-102c-4123-b952-35600250d495" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="78ca3e8d-3718-4086-835d-60b879b35572" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="45c538c9-7104-43c9-aa63-4114f52a0d0e" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="fd65d17e-32b4-453a-911a-527a6ee54dfa" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="63797128-092b-4606-8057-34cccc40833f" message="Success" />
+	</sub-flow>
+	<sub-flow name="update-item-flow" doc:id="1ae9b6b0-dae3-4cf3-80d5-78d08680f45a" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="88e773e4-0ebb-444b-87ca-9c1229e2fd9a" message="#[vars.contextID]" category="Got contextID"/>
+		<flow-ref doc:name="invalid-product-code" doc:id="6364bc16-74e8-4ed7-bb17-8c7364ae6bcf" name="invalid-product-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="17c6662a-cbd3-40fb-8057-33c6b25f2181" />
+		<flow-ref doc:name="validation-product-flow Reference" doc:id="8f3c3ac2-1f67-4c4f-ad02-4b89e5eb7951" name="validation-product"/>
+		<ee:transform doc:name="product-to-wsdl" doc:id="cda8a731-1f7a-4886-9c59-10dc3330fa2d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#updateItem: {
+		contextId: vars.contextID,
+		updateableItemData: {
+			baseStorageUOM: payload.product.productDetails.baseStorageUOM,
+			bondedProduct: payload.product.productDetails.bondedProduct,
+			description: payload.product.productDetails.description,
+			facility: payload.product.productDetails.facilities.facility,
+			itemBarCode: payload.product.productDetails.productBarCode,
+			(payload.product.productDetails.productFacilityWmos map ( productFacilityWmo , indexOfProductFacilityWmo ) -> {
+				itemFacilityWmos: {
+					activeMaxLpns: productFacilityWmo.activeMaxLpns,
+					activeMaxUnits: productFacilityWmo.activeMaxUnits,
+					allocationType: productFacilityWmo.allocationType,
+					defaultWaveProcessType: productFacilityWmo.defaultWaveProcessType,
+					facility: productFacilityWmo.facility,
+					fifoRange: productFacilityWmo.fifoRange,
+					itemAverageWeight: productFacilityWmo.productAverageWeight,
+					lpnPerTier: productFacilityWmo.lpnPerTier,
+					pickMaxLpns: productFacilityWmo.pickMaxLpns,
+					pickMaxUnits: productFacilityWmo.pickMaxUnits,
+					putawayType: productFacilityWmo.putawayType
+				},
+				itemKey: {
+					businessUnit: payload.product.productDetails.businessUnit,
+					itemName: payload.product.productDetails.itemName
+				}
+			}),
+			(payload.product.productDetails.productCosts map ( productCost , indexOfProductCost ) -> {
+				itemCost: {
+					costType: productCost.costType,
+					currencyCode: productCost.currencyCode,
+					displayUOM: productCost.displayUOM,
+					unitCost: productCost.unitCost
+				},
+				itemPackage: {
+					packageUOM: payload.product.productDetails.productPackageData.productPackage.packageUOM,
+					quantity: payload.product.productDetails.productPackageData.productPackage.quantity
+				}
+			}),
+			(payload.product.productDetails.productPrice map ( productPrice , indexOfProductPrice ) -> {
+				itemPrice: {
+					channelType: productPrice.channelType,
+					currencyCode: productPrice.currencyCode,
+					displayUOM: productPrice.displayUOM,
+					priceType: productPrice.priceType,
+					retailPrice: productPrice.retailPrice,
+					unitPrice: productPrice.unitPrice
+				}
+			}),
+			itemWmos: {
+				batchReqd: payload.product.productDetails.productWmos.batchReqd,
+				cntryOfOrgnReqd: payload.product.productDetails.productWmos.cntryOfOrgnReqd,
+				dateCode: payload.product.productDetails.productWmos.dateCode,
+				dateWindow: payload.product.productDetails.productWmos.dateWindow,
+				expDateReqd: payload.product.productDetails.productWmos.expDateReqd,
+				mfgDateReqd: payload.product.productDetails.productWmos.mfgDateReqd,
+				prodStatReqd: payload.product.productDetails.productWmos.prodStatReqd,
+				promptForVendor: payload.product.productDetails.productWmos.promptForVendor,
+				shipByDateReqd: payload.product.productDetails.productWmos.shipByDateReqd
+			},
+			productClass: payload.product.productDetails.productClass,
+			protectionLevel: payload.product.productDetails.protectionLevel,
+			seasonalProduct: payload.product.productDetails.seasonalProduct,
+			supplierItemBarCode: payload.product.productDetails.supplierProductBarCode
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="update-product-consume" doc:id="c6c3e219-d55f-4ee3-959b-eb42783b5219" config-ref="wsc-product-manhattan" operation="${secure::wsc.product-service.operation.update-item}"/>
+		<ee:transform doc:name="response-body" doc:id="ff6dec39-a604-4827-8111-a654fab2b6c9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.updateItemResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f5a7e839-6084-4bf5-8ea4-0ef212286b00" message="#[payload]" category="after response body"/>
+		<logger level="INFO" doc:name="update-item-flow" doc:id="9b491b34-78b7-4b1c-b2ea-c69962662eea" message="#[payload]" category="In the create purchase order flow"/>
+		<logger level="INFO" doc:name="wmos-validation" doc:id="979d8dff-c3f2-473b-b01d-55f5faf4d023" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="652feb8c-2980-4ae5-a6af-14735f09a3ff" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="65c5c7e2-7f02-4f4d-ac5c-f623f8b4b726" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="839626bf-420a-4f54-baac-d55e9655c265" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="da8b050c-5a65-421c-b30d-8d72d80bfdb5" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="215d169f-8767-4a8d-b008-52412dca6e13" message="Success" />
+	</sub-flow>
+	<sub-flow name="delete-item-flow" doc:id="8d533f67-1a8d-4a85-8713-c93f64e10210" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="4e17fa03-bb4f-4cae-bf1e-d463e8e2816c" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-product-code" doc:id="03a62ae5-5a3a-4688-b86c-b1282f664904" name="invalid-product-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="56cff63e-8df4-4cc8-9dd8-c821c2f82259" />
+		<ee:transform doc:name="product-to-wsdl" doc:id="79402646-1a5c-4065-9614-dc55e102fee4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#deleteItem: {
+		contextId: vars.contextID,
+		itemKey: {
+			businessUnit: vars.businessUnit,
+			itemName: vars.productIdentifier
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e6deae60-29ad-4c4b-9907-1530f62d22aa" message="#[payload]" category="before consume"/>
+		<wsc:consume operation="${secure::wsc.product-service.operation.delete-item}" doc:name="delete-product-consume" doc:id="89f6d8b9-1118-4d48-bc65-edb9a32fb071" config-ref="wsc-product-manhattan"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8290dcfe-c08d-454c-8c1f-fa6bf079aca6" message="#[payload]" category="after consume"/>
+		<ee:transform doc:name="response-body" doc:id="25cde11c-a1b3-45e5-ab22-e44dee6e451c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.deleteItemResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="response" doc:id="2b5741c0-7f57-455a-ab27-21ef2254f9d7">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<logger level="INFO" doc:name="delete-item-flow" doc:id="44df1928-2a22-4b5a-844a-2038bec93b49" message="In the delete product order flow" />
+		<logger level="INFO" doc:name="wmos-validation" doc:id="f0551d02-78dd-4187-8978-f331c191a410" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="1ecbdd40-b92c-4d15-8a9a-183cbdc35c34" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="af2772db-8700-4465-b812-a6909fed8632" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="d7a98f7f-618d-459a-a667-6c293b2c7514" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="06c6352f-235c-4f10-81b3-5268f06760b7" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="de57b0cb-34da-46d9-aa5a-4c82e341bf38" message="Success" />
+	</sub-flow>
+	<sub-flow name="get-item-flow" doc:id="a5342c43-1bee-4e5f-9fd7-5038db995c3c" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="ecec2afc-cf15-4d16-8af6-6a62fe20f635" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-product-code" doc:id="7e2bfdd2-ec0c-432d-9226-31e3442ff117" name="invalid-product-code" />
+		<ee:transform doc:name="product-to-wsdl" doc:id="d0d1665d-6076-41ed-8333-7ca729884d49">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#getItem: {
+		contextId: vars.contextID,
+		itemKey: {
+			businessUnit: vars.businessUnit,
+			itemName: vars.productIdentifier
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="9fceb08e-5662-4e39-a178-2d61c175a213" >
+			<wsc:consume operation="${secure::wsc.product-service.operation.get-item}" doc:name="get-product-consume" doc:id="1a7437a8-c247-4496-85bd-e4fd0b27b4cf" config-ref="wsc-product-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="f74511c0-cb79-4117-a9d2-b70c7a9b2589" type="WSC:SOAP_FAULT">
+					<logger level="INFO" doc:name="Logger" doc:id="561c5842-4ed8-4e74-8e81-79fce1b175d0" message="In on-error-continue"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="response-body" doc:id="282fda68-ebaa-457f-b893-bb7778274eff">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.getItemResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="430a245c-b05f-4d9e-87d8-69f43e316938">
+			<when expression="#[payload == null]">
+				<logger level="INFO" doc:name="Logger" doc:id="93398b95-f0fb-4007-b810-914ea9431cb8" message="In the if choice is NULL" />
+				<set-payload value="#[{}]" doc:name="Set Payload" doc:id="4187c5ea-6117-49b0-a1f3-7f09649115f0" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="63a87f20-d768-470b-8f0e-bc72e3e12892" message="in the default choice " />
+				<ee:transform doc:name="return item details" doc:id="ec29dd9b-01cd-4691-b2bf-c1742d48a224">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="get-item-flow" doc:id="8dca6d1b-960b-4287-9fac-fb898fbd5bff" message="#[payload]" category="In the get item flow"/>
+		<logger level="INFO" doc:name="successful " doc:id="22fbce9a-d575-481d-bcac-f045348b7d70" message="Success" />
+	</sub-flow>
+	<sub-flow name="list-item-flow" doc:id="0cc86145-3964-4aa3-8e30-0d98f69d13fc">
+		<logger level="INFO" doc:name="got-contextID" doc:id="02ba15c5-1dae-46a7-94db-265a84661034" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-product-code" doc:id="ddd24cf4-6093-4acb-a724-971abb2e121c" name="invalid-product-code" />
+		<ee:transform doc:name="product-to-wsdl" doc:id="f51ba505-3823-4768-8155-54314ff0ff72">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+
+---
+{
+	ns0#listItem: {
+		contextId: vars.contextID,
+		itemEnquiryData: {
+			businessPartner: vars.businessPartner default "",
+			businessUnit: vars.businessUnit default "",
+			fetchCount: vars.limit default 500
+			//pageIndex: vars.pageIndex
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="40a705b8-e8ad-4d21-951c-8b9ef31c45a2" message="#[payload]" category="After product to wsdl" />
+		<try doc:name="Try" doc:id="1a995f03-39d0-4a71-b9a1-97050be20e2a">
+			<wsc:consume operation="${secure::wsc.product-service.operation.list-item}" doc:name="list-product-consume" doc:id="473a472a-03b1-4bf0-bfb5-2f75d2eaed0d" config-ref="wsc-product-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="63a76a56-80ec-4607-90b8-f35cbb29d34d" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="c634c159-e7de-4a1d-b6cb-51c3a384685a" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="response-body" doc:id="f5496918-2155-4b3e-aef1-8278aaa8bb80">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4ea929d0-b8b6-4bb9-8ea7-a20041ab4e7b" message="#[payload]" category="List product consume response" />
+		<logger level="INFO" doc:name="Logger" doc:id="5bb5ae29-81ec-45b3-8270-b205e91b1118" message="#[vars.pageIndex]" category="pageIndex" />
+		<logger level="INFO" doc:name="Logger" doc:id="cefb3832-376f-44ce-ad33-aa8323eefba4" message="#[vars.pageSize]" category="pageSize" />
+		<logger level="INFO" doc:name="Logger" doc:id="11d40f05-9193-49cc-b27f-9aa793216696" message="#[payload.body.listItemResponse.*return.itemName map $ as Number default []]" category="check this output" />
+		<ee:transform doc:name="productKeys" doc:id="5bf89c60-d267-45dd-a346-149db6a5be18">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var pageSize = vars.pageSize
+
+var pageIndex = vars.pageIndex
+
+var productKeys = payload.body.listItemResponse.*return.itemName  map $ as Number default []
+
+var keys = productKeys orderBy $
+
+var keysSize = sizeOf(keys)
+
+var startPosition = ((pageIndex-1)*pageSize)
+
+var calcEndPosition = (pageIndex*pageSize)-1
+
+var endPosition = if (calcEndPosition > keysSize - 1) keysSize - 1 else calcEndPosition
+
+--- 
+productKeys: keys[startPosition to endPosition] default []
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="maxPageCount" ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+
+var pageSize = vars.pageSize
+
+var productKeys = payload.body.listItemResponse.*return.itemName  map $ as Number default []
+
+var keys = productKeys orderBy $
+
+var keysSize = sizeOf(keys)
+
+var maxPageCount = keysSize/pageSize
+
+var decimal = isEmpty(substringAfter(maxPageCount , "."))
+
+---
+if (decimal) round(maxPageCount) else (substringBefore(maxPageCount , ".") +1)
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="c9aed306-5451-4d5a-908a-9daa22639b74" message="#[payload]" category="list product consume payload" />
+		<choice doc:name="Choice" doc:id="75c3752e-08d5-4501-a04e-44ca0788a090">
+			<when expression="#[payload.productKeys == []]">
+				<logger level="INFO" doc:name="Logger" doc:id="eccb9cd4-98cb-4535-a4e7-79c77cb4369e" message="In the if choice is NULL" />
+				<set-payload value="#[{}]" doc:name="Set Payload" doc:id="b70e824b-24b3-43f5-afb3-d32a084c3861" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="a0fefad2-d215-4090-8ee0-87179ef04167" message="#[vars.productKeyOnly]" category="in the default choice " />
+				<choice doc:name="Choice" doc:id="a66173df-85c7-418d-8517-85090d4702f0">
+					<when expression='#[vars.productKeyOnly == "X"]'>
+						<logger level="INFO" doc:name="Logger" doc:id="ec54faf7-3a33-467b-ab55-c55998539e8d" message="#[payload]" category="Product keys returned" />
+					</when>
+					<otherwise>
+						<logger level="INFO" doc:name="Logger" doc:id="af4dcffc-7bb4-4158-82ab-cc4cc270bf22" message="Default choice - read getItem" />
+						<set-variable value="#[[]]" doc:name="itemListDetails" doc:id="40b398b9-b96b-4e38-8ac7-95340c4935d4" variableName="itemListDetails" />
+						<foreach doc:name="For Each productKeys" doc:id="293b47f4-1f8f-4a20-810e-bdf285ddf92a" collection="#[payload.productKeys]">
+							<logger level="INFO" doc:name="Logger" doc:id="6ffd7155-7eb2-4249-9786-f010b4a2dd2c" message="#[payload]" category="For each product key" />
+							<set-variable value="#[payload]" doc:name="productkey" doc:id="663828c6-6342-45e2-a049-8576d9234303" variableName="productIdentifier" />
+							<flow-ref doc:name="getItem - flow Reference" doc:id="2cf7e6c1-f963-4803-9589-3486da6603c2" name="get-item-flow" />
+							<set-variable value="#[payload]" doc:name="itemDetailOutput" doc:id="57050229-3daa-4aa3-be2d-a43b82cacee5" variableName="itemDetailOutput" />
+							<logger level="INFO" doc:name="Logger" doc:id="526347c5-0c75-4383-b7a9-503044a53969" message="#[vars.getOutput]" category="getItem payload output" />
+							<ee:transform doc:name="itemListDetails" doc:id="29416c69-de35-42a7-932f-42741e195a64">
+								<ee:message />
+								<ee:variables>
+									<ee:set-variable variableName="itemListDetails"><![CDATA[%dw 2.0
+output application/json
+---
+
+//gather all data
+flatten(vars.*itemListDetails ++ [vars.itemDetailOutput ])]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<logger level="INFO" doc:name="Logger" doc:id="5450aff7-ce0c-4f8f-a7da-8d9d75b56467" message="#[payload]" category="Concatenated payload" />
+						</foreach>
+						<logger level="INFO" doc:name="Logger" doc:id="567346b8-f531-4a26-9b45-3c881ad79206" message="#[vars.itemListDetails]" category="Final item details" />
+						<ee:transform doc:name="list-info" doc:id="cb93cfaa-16e3-4771-9a62-f556cc670005">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "listInfo": {
+    "recordCount": sizeOf(vars.itemListDetails),
+    "currPage": vars.pageIndex,
+    "maxPageCount": vars.maxPageCount
+  },
+  "products": vars.itemListDetails
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Final output" doc:id="3a28527a-ca22-42cc-980e-67ec18747764" message="#[payload]" category="Final output" />
+		<logger level="INFO" doc:name="successful " doc:id="1b5ec07a-9bd1-4f4a-8442-f98c5ff156d5" message="Success" />
+	</sub-flow>
+	<sub-flow name="validation-product" doc:id="f33cc089-ce1d-48aa-aa66-6986fe6827e8">
+		<validation:is-true doc:name="Validate Product Identifier" doc:id="cca84917-b4c8-4305-b2fd-758561f1a7a6" expression="#[vars.productIdentifier == payload.product.productDetails.itemName]" message="Product Identifer does not match Item Name" />
+	</sub-flow>
+	<sub-flow name="invalid-product-code" doc:id="d9c6c46a-d6e9-4a12-bb5d-71c257b48e7e" >
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::errorCodes.invalidProduct') as Number]" doc:name="invalidCode" doc:id="c16acb98-c3b4-47b2-ab8e-3335ab86d2c1" variableName="invalidCode" />
+	</sub-flow>
+</mule>

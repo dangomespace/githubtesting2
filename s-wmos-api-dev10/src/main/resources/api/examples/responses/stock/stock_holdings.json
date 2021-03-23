@@ -1,0 +1,15 @@
+{
+  "stockAdjustments": [{
+        "facility": "",
+        "businessUnit": "",
+        "itemID": "",
+        "SKU": "",
+        "sizeDesc": "",
+        "description": "",
+        "qtyAvailable": "",
+        "qtyUnavailable": "",
+        "qtyCommit": "",
+        "qtyAllocated": "",
+        "totalBOH": ""
+    }]
+}

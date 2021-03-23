@@ -1,0 +1,17 @@
+[
+	{
+		"validationType": "Error",
+		"code": 400,
+		"message": "Error on validation"
+	},
+	{
+		"validationType": "Warning",
+		"code": 400,
+		"message": "Error on validation"
+	},
+	{
+		"validationType": "Info",
+		"code": 400,
+		"message": "Error on validation"
+	}
+]

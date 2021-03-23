@@ -1,0 +1,63 @@
+{
+  "product": {
+    "productDetails": {
+      "itemName": "703421",
+      "description": "FUNTIME SUNLOUNGER",
+      "businessUnit": "101",
+      "productClass": "",
+      "protectionLevel": "",
+      "baseStorageUOM": "",
+      "productBarCode": "2200004130002",
+      "supplierProductBarCode": "",
+      "productCosts": [{
+          "costType": "",
+          "currencyCode": "",
+          "displayUOM": "",
+          "unitCost": ""
+            }],
+      "productPrice": [{
+          "channelType": "",
+          "currencyCode": "",
+          "displayUOM": "",
+          "priceType": "",
+          "retailPrice": "",
+          "unitPrice": ""
+      }],
+      "facilities": [{
+            "facility": ""
+      }],
+      "productPackageData": {
+        "productPackage": {
+          "packageUOM": "Pack",
+          "quantity": 1
+        }
+      },
+      "productFacilityWmos": [{
+          "facility": "",
+          "lpnPerTier": "",
+          "defaultWaveProcessType": "",
+          "activeMaxUnits": "",
+          "activeMaxLpns": "",
+          "pickMaxLpns": "",
+          "pickMaxUnits": "",
+          "fifoRange": "",
+          "productAverageWeight": "",
+          "putawayType": "",
+          "allocationType": ""
+      }],
+      "bondedProduct": false,
+      "seasonalProduct": false,
+      "productWmos": {
+        "batchReqd": "",
+        "cntryOfOrgnReqd": "",
+        "dateCode": "",
+        "dateWindow": "",
+        "expDateReqd": "",
+        "mfgDateReqd": "",
+        "prodStatReqd": "",
+        "promptForVendor": "",
+        "shipByDateReqd": ""
+      }
+    }
+  }
+}

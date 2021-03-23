@@ -1,0 +1,16 @@
+api:
+ id: "15844688"
+ domain:  "s-template-api-test"  
+ 
+https:
+ frequency : "10000"
+ retry : "3"
+ timeout : "60000"
+ tls:
+  keyStorePassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  privateKeyPassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  filePath: "certificates/test-keystore.jks"
+   
+ 
+
+template: "api-test" 

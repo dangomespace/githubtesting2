@@ -1,0 +1,16 @@
+api:
+ version:  "v1"
+https:
+ internalport: "8092"
+ host: "0.0.0.0"
+ listener:
+  path: "/api/${api.version}/mawmos/*"
+  frequency : "10000"
+  retryCount : "3"
+  timeout : "60000"
+tls:
+ storeType: "JKS"
+
+environment:
+ id: "" 
+ 

@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.cbo.services.wmos.manh.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="ASNService" targetNamespace="http://service.cbo.services.wmos.manh.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.cbo.services.wmos.manh.com/" elementFormDefault="unqualified" targetNamespace="http://service.cbo.services.wmos.manh.com/" version="1.0">
+
+  <xs:element name="ValidationResult" type="tns:validationResult"/>
+
+  <xs:element name="createASN" type="tns:createASN"/>
+
+  <xs:element name="createASNResponse" type="tns:createASNResponse"/>
+
+  <xs:element name="getASN" type="tns:getASN"/>
+
+  <xs:element name="getASNResponse" type="tns:getASNResponse"/>
+
+  <xs:element name="updateASN" type="tns:updateASN"/>
+
+  <xs:element name="updateASNResponse" type="tns:updateASNResponse"/>
+
+  <xs:complexType name="getASN">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="asnKey" type="tns:asnKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="asnKey">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="asnNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getASNResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:asnData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="asnData">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="asnDetails" nillable="true" type="tns:asnDetailData"/>
+      <xs:element minOccurs="0" name="asnKey" type="tns:asnKey"/>
+      <xs:element minOccurs="0" name="asnType" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEndDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStartDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="originType" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickUpEndDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickUpStartDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="shipment" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="asnDetailData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="batch" type="xs:string"/>
+      <xs:element minOccurs="0" name="businessPartner" type="xs:string"/>
+      <xs:element minOccurs="0" name="countryOfOrgin" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemName" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrder" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderLineItemNbr" type="xs:string"/>
+      <xs:element minOccurs="0" name="shipppedQuantity" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateASN">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="asnData" type="tns:updateableASNData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateableASNData">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="asnDetails" nillable="true" type="tns:asnDetailData"/>
+      <xs:element minOccurs="0" name="asnKey" type="tns:asnKey"/>
+      <xs:element minOccurs="0" name="asnType" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEndDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStartDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="originType" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickUpEndDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickUpStartDTTM" type="xs:string"/>
+      <xs:element minOccurs="0" name="shipment" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateASNResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Value" type="xs:anyType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="ValidationMessage" type="tns:validationMessage"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="objectId" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createASN">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="asnData" type="tns:asnData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createASNResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getASN">
+    <wsdl:part element="tns:getASN" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getASNResponse">
+    <wsdl:part element="tns:getASNResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createASN">
+    <wsdl:part element="tns:createASN" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateASNResponse">
+    <wsdl:part element="tns:updateASNResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateASN">
+    <wsdl:part element="tns:updateASN" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createASNResponse">
+    <wsdl:part element="tns:createASNResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SOAASNServiceWrapper">
+    <wsdl:operation name="getASN">
+      <wsdl:input message="tns:getASN" name="getASN">
+    </wsdl:input>
+      <wsdl:output message="tns:getASNResponse" name="getASNResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateASN">
+      <wsdl:input message="tns:updateASN" name="updateASN">
+    </wsdl:input>
+      <wsdl:output message="tns:updateASNResponse" name="updateASNResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createASN">
+      <wsdl:input message="tns:createASN" name="createASN">
+    </wsdl:input>
+      <wsdl:output message="tns:createASNResponse" name="createASNResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ASNServiceSoapBinding" type="tns:SOAASNServiceWrapper">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getASN">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getASN">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getASNResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateASN">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateASN">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateASNResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createASN">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createASN">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createASNResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ASNService">
+    <wsdl:port binding="tns:ASNServiceSoapBinding" name="SOAASNServiceWrapperPort">
+      <soap:address location="https://mn17-t06-http.wl.wincanton-local.co.uk:36001/services/ASNService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

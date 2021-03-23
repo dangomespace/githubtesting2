@@ -1,0 +1,48 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://wincanton.co.uk/productList.json",
+    "type": "object",
+    "title": "Product List",
+    "description": "The Product List root schema comprises the entire JSON document.",
+    "default": {},
+    "properties": {
+        "products": {
+            "$id": "#/properties/products",
+            "type": "array",
+            "title": "List of Products",
+            "description": "List of Products",
+            "default": [],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/products/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/products/items/anyOf/0",
+                        "type": "object",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": {},
+                        "properties": {
+                            "productIdentifier": {
+                                "$id": "#/properties/products/items/anyOf/0/properties/productIdentifier",
+                                "type": "string",
+                                "title": "Product Identifier",
+                                "description": "Product Identifier",
+                                "default": ""
+                            },
+                            "businessUnit": {
+                                "$id": "#/properties/products/items/anyOf/0/properties/businessUnit",
+                                "type": "string",
+                                "title": "Business Unit",
+                                "description": "Business Unit for the product",
+                                "default": ""
+                            }
+                        },
+                        "additionalProperties": true
+                    }
+                ]
+            }
+        }
+    },
+    "additionalProperties": true
+}

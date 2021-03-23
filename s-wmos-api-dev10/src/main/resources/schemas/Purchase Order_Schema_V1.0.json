@@ -1,0 +1,732 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://wincanton.co.uk/purchaseOrder.json",
+	"type": "object",
+	"title": "Purchase Order",
+	"description": "The Purchase Order root schema comprises the entire JSON document.",
+	"default": {},
+	"properties": {
+		"purchaseOrder": {
+			"$id": "#/properties/purchaseOrder",
+			"type": "object",
+			"title": "Purchase Order",
+			"description": "Purchase Order",
+			"default": {},
+			"properties": {
+				"header": {
+					"$id": "#/properties/purchaseOrder/properties/header",
+					"type": "object",
+					"title": "Purchase Order Header",
+					"description": "Purchase Order header information",
+					"default": {},
+					"properties": {
+						"poNumber": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/poNumber",
+							"type": "string",
+							"title": "PO Number",
+							"description": "Purchase Order number",
+							"default": ""
+						},
+						"businessUnit": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/businessUnit",
+							"type": "string",
+							"title": "Business Unit",
+							"description": "Business Unit",
+							"default": ""
+						},
+						"businessPartner": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/businessPartner",
+							"type": "string",
+							"title": "Business Partner Name",
+							"description": "Business Partner Name",
+							"default": ""
+						},
+						"status": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/status",
+							"type": "string",
+							"title": "PO Status",
+							"description": "Status of the Purchase Order",
+							"default": ""
+						},
+						"isCancelled": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/isCancelled",
+							"type": "boolean",
+							"title": "PO Cancellation status",
+							"description": "Is the Purchase Order cancelled?",
+							"default": false
+						},
+						"originDetails": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails",
+							"type": "object",
+							"title": "Order origin facility details",
+							"description": "Details of the purchase order origin facility",
+							"default": {},
+							"properties": {
+								"facility": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/facility",
+									"type": "string",
+									"title": "Origin Facility name",
+									"description": "Origin Facility name",
+									"default": ""
+								},
+								"contact": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact",
+									"type": "object",
+									"title": "Origin Facility contact details",
+									"description": "Origin Facility contact details",
+									"default": {},
+									"properties": {
+										"firstName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact/properties/firstName",
+											"type": "string",
+											"title": "First name",
+											"description": "First name",
+											"default": ""
+										},
+										"lastName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact/properties/lastName",
+											"type": "string",
+											"title": "Last name",
+											"description": "Last name",
+											"default": ""
+										},
+										"phoneNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact/properties/phoneNumber",
+											"type": "string",
+											"title": "Phone number",
+											"description": "Phone number",
+											"default": ""
+										},
+										"emailId": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact/properties/emailId",
+											"type": "string",
+											"title": "Email id",
+											"description": "Email id",
+											"default": ""
+										},
+										"faxNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/contact/properties/faxNumber",
+											"type": "string",
+											"title": "Fax number",
+											"description": "Fax number",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								},
+								"address": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address",
+									"type": "object",
+									"title": "Origin Address",
+									"description": "Address of the origin facility",
+									"default": {},
+									"properties": {
+										"addressLine1": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/addressLine1",
+											"type": "string",
+											"title": "Address Line 1",
+											"description": "Street Address",
+											"default": ""
+										},
+										"addressLine2": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/addressLine2",
+											"type": "string",
+											"title": "Address Line 2",
+											"description": "Street Address",
+											"default": ""
+										},
+										"city": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/city",
+											"type": "string",
+											"title": "City",
+											"description": "City",
+											"default": "",
+											"examples": [
+												"?"
+											]
+										},
+										"countryCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/countryCode",
+											"type": "string",
+											"title": "Country",
+											"description": "Country",
+											"default": ""
+										},
+										"postalCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/postalCode",
+											"type": "string",
+											"title": "Postcode",
+											"description": "Postcode",
+											"default": ""
+										},
+										"stateProv": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/originDetails/properties/address/properties/stateProv",
+											"type": "string",
+											"title": "State and Province",
+											"description": "State and Province",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}
+							},
+							"additionalProperties": true
+						},
+						"pickUp": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/pickUp",
+							"type": "object",
+							"title": "Pick up details",
+							"description": "Information related to Pick up date and time",
+							"default": {},
+							"properties": {
+								"startDate": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/pickUp/properties/StartDate",
+									"type": "string",
+									"title": "Start Date",
+									"description": "Pick up Start Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"28062020"
+									]
+								},
+								"startTime": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/pickUp/properties/StartTime",
+									"type": "string",
+									"title": "Start Time",
+									"description": "Pick up Start Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"100956"
+									]
+								},
+								"endDate": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/pickUp/properties/EndDate",
+									"type": "string",
+									"title": "End Date",
+									"description": "Pick up End Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"31102020"
+									]
+								},
+								"endTime": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/pickUp/properties/EndTime",
+									"type": "string",
+									"title": "End Time",
+									"description": "Pick up End Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"165815"
+									]
+								}
+							},
+							"additionalProperties": true
+						},
+						"billTo": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/billTo",
+							"type": "object",
+							"title": "Bill to Info",
+							"description": "Information related to Bill to party",
+							"default": {},
+							"properties": {
+								"facility": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/facility",
+									"type": "string",
+									"title": "Bill To Facility",
+									"description": "Bill To Facility",
+									"default": "",
+									"examples": [
+										"?"
+									]
+								},
+								"contact": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact",
+									"type": "object",
+									"title": "Bill To contact details",
+									"description": "Bill To contact details",
+									"default": {},
+									"properties": {
+										"firstName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact/properties/firstName",
+											"type": "string",
+											"title": "First name",
+											"description": "First name",
+											"default": ""
+										},
+										"lastName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact/properties/lastName",
+											"type": "string",
+											"title": "Last name",
+											"description": "Last name",
+											"default": ""
+										},
+										"phoneNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact/properties/phoneNumber",
+											"type": "string",
+											"title": "Phone number",
+											"description": "Phone number",
+											"default": ""
+										},
+										"emailId": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact/properties/emailId",
+											"type": "string",
+											"title": "Email id",
+											"description": "Email id",
+											"default": ""
+										},
+										"faxNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/contact/properties/faxNumber",
+											"type": "string",
+											"title": "Fax number",
+											"description": "Fax number",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								},
+								"address": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address",
+									"type": "object",
+									"title": "Bill to Address",
+									"description": "Bill to Address",
+									"default": {},
+									"properties": {
+										"addressLine1": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/addressLine1",
+											"type": "string",
+											"title": "Address Line 1",
+											"description": "Street Address",
+											"default": ""
+										},
+										"addressLine2": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/addressLine2",
+											"type": "string",
+											"title": "Address Line 2",
+											"description": "Street Address",
+											"default": ""
+										},
+										"city": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/city",
+											"type": "string",
+											"title": "City",
+											"description": "City",
+											"default": "",
+											"examples": [
+												"?"
+											]
+										},
+										"countryCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/countryCode",
+											"type": "string",
+											"title": "Country",
+											"description": "Country",
+											"default": ""
+										},
+										"postalCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/postalCode",
+											"type": "string",
+											"title": "Postcode",
+											"description": "Postcode",
+											"default": ""
+										},
+										"stateProv": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/billTo/properties/address/properties/stateProv",
+											"type": "string",
+											"title": "State and Province",
+											"description": "State and Province",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}
+							},
+							"additionalProperties": true
+						},
+						"shipTo": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo",
+							"type": "object",
+							"title": "Ship-To Details",
+							"description": "Ship-To (Destination) Details",
+							"default": {},
+							"properties": {
+								"facility": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/facility",
+									"type": "string",
+									"title": "Ship To Facility",
+									"description": "Ship To Facility",
+									"default": ""
+								},
+								"contact": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact",
+									"type": "object",
+									"title": "Ship To contact",
+									"description": "Ship To contact details",
+									"default": {},
+									"properties": {
+										"firstName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact/properties/firstName",
+											"type": "string",
+											"title": "First name",
+											"description": "First name",
+											"default": ""
+										},
+										"lastName": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact/properties/lastName",
+											"type": "string",
+											"title": "Last name",
+											"description": "Last name",
+											"default": ""
+										},
+										"phoneNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact/properties/phoneNumber",
+											"type": "string",
+											"title": "Phone number",
+											"description": "Phone number",
+											"default": ""
+										},
+										"emailId": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact/properties/emailId",
+											"type": "string",
+											"title": "Email id",
+											"description": "Email id",
+											"default": ""
+										},
+										"faxNumber": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/contact/properties/faxNumber",
+											"type": "string",
+											"title": "Fax number",
+											"description": "Fax number",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								},
+								"address": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address",
+									"type": "object",
+									"title": "Ship-To Address",
+									"description": "Ship-To Address Details",
+									"default": {},
+									"properties": {
+										"addressLine1": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/addressLine1",
+											"type": "string",
+											"title": "Address Line 1",
+											"description": "Street Address",
+											"default": ""
+										},
+										"addressLine2": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/addressLine2",
+											"type": "string",
+											"title": "Address Line 2",
+											"description": "Street Address",
+											"default": ""
+										},
+										"city": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/city",
+											"type": "string",
+											"title": "City",
+											"description": "City",
+											"default": "",
+											"examples": [
+												"?"
+											]
+										},
+										"countryCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/countryCode",
+											"type": "string",
+											"title": "Country",
+											"description": "Country",
+											"default": ""
+										},
+										"postalCode": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/postalCode",
+											"type": "string",
+											"title": "Postcode",
+											"description": "Postcode",
+											"default": ""
+										},
+										"stateProv": {
+											"$id": "#/properties/purchaseOrder/properties/header/properties/shipTo/properties/address/properties/stateProv",
+											"type": "string",
+											"title": "State and Province",
+											"description": "State and Province",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}
+							},
+							"additionalProperties": true
+						},
+						"delivery": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/delivery",
+							"type": "object",
+							"title": "Delivery Details",
+							"description": "Delivery Details",
+							"default": {},
+							"properties": {
+								"startDate": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/delivery/properties/StartDate",
+									"type": "string",
+									"title": "Start Date",
+									"description": "Delivery Start Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"28062020"
+									]
+								},
+								"startTime": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/delivery/properties/StartTime",
+									"type": "string",
+									"title": "Start Time",
+									"description": "Delivery Start Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"100956"
+									]
+								},
+								"endDate": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/delivery/properties/EndDate",
+									"type": "string",
+									"title": "End Date",
+									"description": "Delivery End Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"31102020"
+									]
+								},
+								"endTime": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/delivery/properties/EndTime",
+									"type": "string",
+									"title": "End Time",
+									"description": "Delivery End Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"165815"
+									]
+								}
+							},
+							"additionalProperties": true
+						},
+						"requestedDelivery": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/requestedDelivery",
+							"type": "object",
+							"title": "Requested Delivery info",
+							"description": "Requested Delivery slot",
+							"default": {},
+							"properties": {
+								"date": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/requestedDelivery/properties/date",
+									"type": "string",
+									"title": "Requested Delivery Date",
+									"description": "Requested Delivery Date",
+									"default": ""
+								},
+								"time": {
+									"$id": "#/properties/purchaseOrder/properties/header/properties/requestedDelivery/properties/time",
+									"type": "string",
+									"title": "Requested Delivery Time",
+									"description": "Requested Delivery Date",
+									"default": ""
+								}
+							},
+							"additionalProperties": true
+						},
+						"productClass": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/productClass",
+							"type": "string",
+							"title": "Product class",
+							"description": "Product class",
+							"default": ""
+						},
+						"protectionLevel": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/protectionLevel",
+							"type": "string",
+							"title": "Protection level",
+							"description": "Protection level",
+							"default": ""
+						},
+						"grandTotal": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/grandTotal",
+							"type": "string",
+							"title": "Grand Total",
+							"description": "Grand Total",
+							"default": ""
+						},
+						"paymentMethod": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/paymentMethod",
+							"type": "string",
+							"title": "Payment Method",
+							"description": "Payment Method",
+							"default": ""
+						},
+						"taxCharges": {
+							"$id": "#/properties/purchaseOrder/properties/header/properties/taxCharges",
+							"type": "string",
+							"title": "Tax Charges",
+							"description": "Tax Charges",
+							"default": ""
+						}
+					},
+					"additionalProperties": true
+				},
+				"lineItems": {
+					"$id": "#/properties/purchaseOrder/properties/lineItems",
+					"type": "array",
+					"title": "lineItems",
+					"description": "An explanation about the purpose of this instance.",
+					"default": [],
+					"examples": [
+						[{
+							"lineItemNo": "?",
+							"itemName": "?",
+							"description": "?",
+							"itemTin": "?",
+							"orderSize": "?",
+							"orderSizeUOM": "?",
+							"allowSubstitution": "?",
+							"productClassCode": "?",
+							"protectionLevelCode": "?",
+							"commodityClassCode": "?",
+							"unitMonetaryValue": "?",
+							"totalMonetaryValue": "?",
+							"monetaryValueUOM": "?",
+							"monetaryValueCurrency": "?",
+							"isCancelled": "?",
+							"isClosed": "?"
+						}]
+					],
+					"additionalItems": true,
+					"items": {
+						"$id": "#/properties/purchaseOrder/properties/lineItems/items",
+						"anyOf": [{
+							"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0",
+							"type": "object",
+							"title": "The first anyOf schema",
+							"description": "An explanation about the purpose of this instance.",
+							"default": {},
+							"properties": {
+								"lineItemNo": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/lineItemNo",
+									"type": "string",
+									"title": "Purchase Order Line Item Number",
+									"description": "Purchase Order Line Item Number",
+									"default": ""
+								},
+								"itemName": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/itemName",
+									"type": "string",
+									"title": "Item Name",
+									"description": "Item Name",
+									"default": ""
+								},
+								"itemTin": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/itemTin",
+									"type": "string",
+									"title": "Item Tin",
+									"description": "Item Tax Identificaiton Number",
+									"default": ""
+								},
+								"description": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/description",
+									"type": "string",
+									"title": "Description",
+									"description": "Description of the line Item",
+									"default": ""
+								},
+								"orderSize": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/orderSize",
+									"type": "number",
+									"title": "Order Size",
+									"description": "Order Size",
+									"default": ""
+								},
+								"orderSizeUOM": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/orderSizeUOM",
+									"type": "string",
+									"title": "Order Size Unit of Measure",
+									"description": "Order Size Unit of Measure",
+									"default": ""
+								},
+								"allowSubstitution": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/allowSubstitution",
+									"type": "boolean",
+									"title": "Substitution Flag",
+									"description": "Is Substitution allowed?",
+									"default": false
+								},
+								"productClassCode": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/productClassCode",
+									"type": "string",
+									"title": "Product Class",
+									"description": "Product Class",
+									"default": ""
+								},
+								"protectionLevelCode": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/protectionLevelCode",
+									"type": "string",
+									"title": "Protection Level",
+									"description": "Protection Level",
+									"default": ""
+								},
+								"commodityClassCode": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/commodityClassCode",
+									"type": "string",
+									"title": "Commodity Class",
+									"description": "Commodity Class",
+									"default": ""
+								},
+								"unitMonetaryValue": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/unitMonetaryValue",
+									"type": "number",
+									"title": "Unit Monetary Value",
+									"description": "Unit Monetary Value",
+									"default": ""
+								},
+								"totalMonetaryValue": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/totalMonetaryValue",
+									"type": "number",
+									"title": "Total Monetary Value",
+									"description": "Total Monetary Value",
+									"default": ""
+								},
+								"monetaryValueUOM": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/monetaryValueUOM",
+									"type": "string",
+									"title": "Monetary Value UOM",
+									"description": "Monetary Value UOM",
+									"default": ""
+								},
+								"monetaryValueCurrency": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/monetaryValueCurrency",
+									"type": "string",
+									"title": "Monetary Value Currency",
+									"description": "Monetary Value Currency",
+									"default": ""
+								},
+								"isCancelled": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/isCancelled",
+									"type": "boolean",
+									"title": "Cancellation Flag",
+									"description": "Is the lineItem cancelled?",
+									"default": false
+								},
+								"isClosed": {
+									"$id": "#/properties/purchaseOrder/properties/lineItems/items/anyOf/0/properties/isClosed",
+									"type": "boolean",
+									"title": "Closed Flag",
+									"description": "Is the lineItem closed?",
+									"default": false
+								}
+							},
+							"additionalProperties": true
+						}]
+					}
+				}
+			},
+			"additionalProperties": true
+		}
+	},
+	"additionalProperties": true
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="s-wmos-api-test-suite.xml" />
+	<munit:test name="s-wmos-api-test-suite-post:\authentication\validate\contextID:application\json:s-wmos-api-configTest" doc:id="7179f341-72cf-4d33-87b2-56bf9e451ed6" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post:\authentication\validate\contextID:application\json:s-wmos-api-config" doc:id="e7132091-24e7-499a-b7a8-fc648d06ca40" name="post:\authentication\validate\contextID:application\json:s-wmos-api-config"/>
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

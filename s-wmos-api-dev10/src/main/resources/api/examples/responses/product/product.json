@@ -1,0 +1,63 @@
+{
+  "product": {
+    "productDetails": {
+      "itemName": "100112",
+      "description": "FUNTIME SUNLOUNGER",
+      "businessUnit": "100",
+      "productClass": "",
+      "protectionLevel": "",
+      "baseStorageUOM": "Units",
+      "productBarCode": "1001001001",
+      "supplierProductBarCode": "1001001001",
+      "productCosts": [{
+          "costType": "GBP",
+          "currencyCode": "UK",
+          "displayUOM": "Chair",
+          "unitCost" : 12.5
+            }],
+      "productPrice": [{
+          "channelType": "GBP",
+          "currencyCode": "UK",
+          "displayUOM": "Pallets",
+          "priceType": "GBP",
+          "retailPrice": 10.0,
+          "unitPrice": 10.0
+      }],
+      "facilities": [{
+            "facility": "01"
+      }],
+      "productPackageData": {
+        "productPackage": {
+          "packageUOM": "Packs",
+          "quantity": 100.0
+        }
+      },
+      "productFacilityWmos": [{
+          "facility": "01",
+          "lpnPerTier": 0,
+          "defaultWaveProcessType": 5,
+          "activeMaxUnits": 1.0,
+          "activeMaxLpns": 0,
+          "pickMaxLpns": 0,
+          "pickMaxUnits": 2.0,
+          "fifoRange" : 0,
+          "productAverageWeight": 0,
+          "putawayType": "AP",
+          "allocationType": "STD"
+      }],
+        "bondedProduct": false,
+        "seasonalProduct": false,
+        "productWmos": {
+        "batchReqd": "1",
+        "cntryOfOrgnReqd": "1",
+        "dateCode": "1",
+        "dateWindow": "1",
+        "expDateReqd": "1",
+        "mfgDateReqd": "1",
+        "prodStatReqd": "1",
+        "promptForVendor": "1",
+        "shipByDateReqd": "1"
+      }
+    }
+  }
+}

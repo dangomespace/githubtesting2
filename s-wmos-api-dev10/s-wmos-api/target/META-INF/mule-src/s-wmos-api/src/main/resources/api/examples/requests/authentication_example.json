@@ -1,0 +1,10 @@
+{
+  "security": {
+		"actions": "",
+		"contextID": "",
+		"credentials": {
+			"username": "",
+			"password": ""
+						}
+			  }
+}

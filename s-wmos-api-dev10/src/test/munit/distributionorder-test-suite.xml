@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="distributionorder-test-suite.xml" />
+	<munit:test name="post:\outbound\distributionOrders" doc:id="8b8b609c-33cd-4756-a387-70ee0e9f4e90" ignore="true">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="c3791de1-b3a5-4d04-9bb2-91a09a16f732">
+				<munit:payload value="#[output application/json --- readUrl('classpath://distribution_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="ad0cca65-981f-461e-a96a-c5c258b0743a" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://product\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when consume" doc:id="2c7b96da-82a7-4457-a0e6-fafb6f5fb032" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="create-do-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response validation" doc:id="c52fffa2-7119-40ce-98bd-7fb1cad40c61" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to post:\outbound\distributionOrders:application\json:s-wmos-api-config" doc:id="dcbc87b5-7a96-4a97-8121-a394928177f3" name="post:\outbound\distributionOrders:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="e5d66b28-272f-4fa5-b98f-190403764a93" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload_create
+---
+assert_expression_payload_create::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="delete:\outbound\distributionOrders\(distributionOrderNumber)" doc:id="b60255af-34b2-416e-86ec-38a4b43d6edd" ignore="true">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="6a5a2021-5174-4e82-9eec-392f15182242">
+				<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes_delete.dwl')]
+" />
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="1a7340b1-d0f8-49bd-bb92-d003295a552e" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when consume" doc:id="6820c9d7-33d9-4ee9-90cd-1505b4bde818" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cancel-do-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response validation" doc:id="97cc3744-09b1-43f8-86ac-d8f031059eef" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="delete:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config" doc:id="5471870d-7ef4-4725-baae-38a42ac59541" name="delete:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="2de38ee4-5e5e-479e-af4d-14b621e421b3" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload_delete
+---
+assert_expression_payload_delete::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="get:\outbound\distributionOrders-empty" doc:id="97cb5e1f-6a2a-45a1-8cbc-9d22663a862a" ignore="true">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="7290847f-1dba-442a-9d38-3ae525183783">
+				<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes_get.dwl')]" />
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="aeb89b14-1f86-4fd9-9be9-2d15d0dac6b1" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="payloadRequest" value="#[output application/json --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="transactionID" value="#[output application/java --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when get-do-consume" doc:id="b2362fee-a67a-4c61-b7bc-c8f9f5b04040" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="get-do-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response validation" doc:id="bb416419-cd46-4f8b-a0d1-e25fd49562be" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\outbound\distributionOrders\(distributionOrderNumber):s-wmos-api-config" doc:id="aba7a9cc-e889-4189-b7b5-fd994b3cc378" name="get:\outbound\distributionOrders\(distributionOrderNumber):s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="56a96bbd-b87e-47c2-9d6c-4b5ff1187140" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload_get_empty
+---
+assert_expression_payload_get_empty::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="put:\outbound\distributionOrders\(distributionOrderNumber)" doc:id="07746cf2-7f4d-4680-bdbe-eedd779ba260" ignore="true">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="597268a6-c82b-46ed-b46b-c26c43b82541">
+				<munit:payload value="#[output application/json --- readUrl('classpath://distribution_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="c6cc6388-0fae-46cb-ac62-e0d872d9209d" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://product\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when consume" doc:id="18bcc7e4-075b-48bf-8c76-c70e5d449f6e" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="update-do-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response validation" doc:id="e78e3bcd-b8a9-4b9c-8bb1-5f3e2d07bf97" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to put:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config" doc:id="801f652e-2940-45c7-bb24-88c93c8a7cb3" name="put:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="bee7d2bd-44e9-4d2e-80d6-c8ee6972bef6" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="get:\outbound\distributionOrders-distributionorder-details" doc:id="58db8089-699b-4686-b03a-d00b2c034dc3" ignore="true">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="dcab8d75-a660-4724-bf0a-821d009b9a08">
+					<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes_get.dwl')]" />
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="f51ff653-60ff-4406-a8e1-ba067cd81ab5" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="payloadRequest" value="#[output application/json --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="transactionID" value="#[output application/java --- readUrl('classpath://postWMOSoutbounddistributionOrdersapplicationjsonswmosapiconfigtesthappytest\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when consume" doc:id="7b468b3d-bb81-404f-b754-0f0c65b73c16" processor="wsc:consume">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="get-do-consume" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_do_details.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+				<munit-tools:mock-when doc:name="Mock when response validation" doc:id="0ef6fa69-4a86-411b-b6d1-d16edb836a5e" processor="flow-ref">
+					<munit-tools:with-attributes>
+						<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+					</munit-tools:with-attributes>
+					<munit-tools:then-return>
+						<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+					</munit-tools:then-return>
+				</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\outbound\distributionOrders\(distributionOrderNumber):s-wmos-api-config" doc:id="770ad1bf-ffbb-4b3b-93f6-a9c75687983a" name="get:\outbound\distributionOrders\(distributionOrderNumber):s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="c582a836-7ef9-4e27-b798-d6c6939fc4b5" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload_get_details
+---
+assert_expression_payload_get_details::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="getlist:\outbound\distributionOrders-details" doc:id="29b61ba6-3195-487d-aa8b-43515334909a">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="9ecd04e5-3772-4035-bc89-4379051710b7">
+				<munit:attributes value="#[readUrl('classpath://distribution_order\set-event_attributes_get_list_details.dwl')]" />
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="c8e2e81d-c344-4e76-af7f-89a3eb426838" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://distribution_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://product\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when consume" doc:id="a36b8077-cc67-433b-b983-5c9316d55564" processor="wsc:consume">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="list-do-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_list_do.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when get-distribution-orders-flow" doc:id="8c591122-5c81-4897-8e3b-64d648e1403c" processor="sub-flow">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="get-distribution-orders-flow" attributeName="name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://distribution_order\mock_payload_list_get_do.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response validation" doc:id="0be12d2c-0d87-4e0e-9243-c6f3b949ca25" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="get:\outbound\distributionOrders:s-wmos-api-config" doc:id="ab711dda-67c5-4004-b8cb-3dfca8e3d21d" name="get:\outbound\distributionOrders:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="26a9c258-271a-476d-aa86-7d9f0d797633" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import distribution_order::assert_expression_payload_get_list
+---
+assert_expression_payload_get_list::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+
+
+</mule>

@@ -1,0 +1,32 @@
+{
+  "headers": {
+    "content-type": "application/json",
+    "client_id": "a934bnj3n45ou5i7nln443b54b",
+    "client_secret": "kjihi56b1212vghc35b34kb45k",
+    "context-id": "12345",
+    "x-transaction-id": "5VA342F4246",
+    "user-agent": "PostmanRuntime/7.26.10",
+    "accept": "*/*",
+    "postman-token": "40bd44ff-70fc-4bde-ba55-74f68a942281",
+    "host": "localhost:8082",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "931"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "https",
+  "queryParams": {},
+  "requestUri": "/api/mawmos/ecp/v1/WMOS/masterdata/product",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/WMOS/masterdata/product",
+  "listenerPath": "/api/mawmos/ecp/v1/*",
+  "localAddress": "/127.0.0.1:8082",
+  "relativePath": "/api/mawmos/ecp/v1/WMOS/masterdata/product",
+  "uriParams": {},
+  "rawRequestUri": "/api/mawmos/ecp/v1/WMOS/masterdata/product",
+  "rawRequestPath": "/api/mawmos/ecp/v1/WMOS/masterdata/product",
+  "remoteAddress": "/127.0.0.1:61226",
+  "requestPath": "/api/mawmos/ecp/v1/WMOS/masterdata/product"
+}

@@ -1,0 +1,277 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://wincanton.co.uk/asn.json",
+	"type": "object",
+	"title": "ASN",
+	"description": "The ASN root schema comprises the entire JSON document.",
+	"properties": {
+		"asn": {
+			"$id": "#/properties/asn",
+			"type": "object",
+			"title": "ASN Data",
+			"description": "ASN information",
+			"default": {},
+			"properties": {
+				"header": {
+					"$id": "#/properties/asn/properties/header",
+					"description": "ASN Header Information",
+					"title": "ASN Header",
+					"type": "object",
+					"properties": {
+						"asnNumber": {
+							"$id": "#/properties/asn/properties/header/properties/asnNumber",
+							"type": "string",
+							"title": "ASN Number",
+							"description": "ASN Number",
+							"default": ""
+						},
+						"asnType": {
+							"$id": "#/properties/asn/properties/header/properties/asnType",
+							"type": "string",
+							"title": "ASN Type",
+							"description": "Type of the ASN",
+							"default": ""
+						},
+						"businessUnit": {
+							"$id": "#/properties/asn/properties/header/properties/businessUnit",
+							"type": "string",
+							"title": "Business Unit",
+							"description": "Business Unit of the ASN",
+							"default": ""
+						},
+						"originFacility": {
+							"$id": "#/properties/asn/properties/header/properties/originFacility",
+							"type": "string",
+							"title": "Origin Facility",
+							"description": "Origin Facility of the ASN",
+							"default": ""
+						},
+						"originType": {
+							"$id": "#/properties/asn/properties/header/properties/originType",
+							"type": "string",
+							"title": "Origin Type",
+							"description": "Origin Type",
+							"default": ""
+						},
+						"destinationFacility": {
+							"$id": "#/properties/asn/properties/header/properties/destinationFacility",
+							"type": "string",
+							"title": "Destination Facility",
+							"description": "Destination Facility of the ASN",
+							"default": ""
+						},
+						"shipmentNo": {
+							"$id": "#/properties/asn/properties/header/properties/shipment",
+							"type": "string",
+							"title": "Shipment Number",
+							"description": "Shipment Number associated with the ASN",
+							"default": ""
+						},
+						"status": {
+							"$id": "#/properties/asn/properties/header/properties/status",
+							"type": "string",
+							"title": "Status",
+							"description": "Status of the ASN",
+							"default": ""
+						},
+						"pickUp": {
+							"$id": "#/properties/asn/properties/header/properties/pickUp",
+							"type": "object",
+							"title": "Pick up details",
+							"description": "Information related to Pick up date and time",
+							"required": [
+								"StartDate",
+								"EndDate"
+							],
+							"properties": {
+								"StartDate": {
+									"$id": "#/properties/asn/properties/header/properties/pickUp/properties/StartDate",
+									"type": "string",
+									"title": "Start Date",
+									"description": "Pick up Start Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"28062020"
+									]
+								},
+								"StartTime": {
+									"$id": "#/properties/asn/properties/header/properties/pickUp/properties/StartTime",
+									"type": "string",
+									"title": "Start Time",
+									"description": "Pick up Start Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"100956"
+									]
+								},
+								"EndDate": {
+									"$id": "#/properties/asn/properties/header/properties/pickUp/properties/EndDate",
+									"type": "string",
+									"title": "End Date",
+									"description": "Pick up End Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"31102020"
+									]
+								},
+								"EndTime": {
+									"$id": "#/properties/asn/properties/header/properties/pickUp/properties/EndTime",
+									"type": "string",
+									"title": "End Time",
+									"description": "Pick up End Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"165815"
+									]
+								}
+							},
+							"additionalProperties": true
+						},
+						"delivery": {
+							"$id": "#/properties/asn/properties/header/properties/delivery",
+							"type": "object",
+							"title": "Delivery details",
+							"description": "Information related to Delivery date and time",
+							"default": {},
+							"required": [
+								"StartDate",
+								"EndDate"
+							],
+							"properties": {
+								"StartDate": {
+									"$id": "#/properties/asn/properties/header/properties/delivery/properties/StartDate",
+									"type": "string",
+									"title": "Start Date",
+									"description": "Delivery Start Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"28062020"
+									]
+								},
+								"StartTime": {
+									"$id": "#/properties/asn/properties/header/properties/delivery/properties/StartTime",
+									"type": "string",
+									"title": "Start Time",
+									"description": "Delivery Start Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"100956"
+									]
+								},
+								"EndDate": {
+									"$id": "#/properties/asn/properties/header/properties/delivery/properties/EndDate",
+									"type": "string",
+									"title": "End Date",
+									"description": "Delivery End Date (DDMMYYYY)",
+									"default": "",
+									"examples": [
+										"31102020"
+									]
+								},
+								"EndTime": {
+									"$id": "#/properties/asn/properties/header/properties/delivery/properties/EndTime",
+									"type": "string",
+									"title": "End Time",
+									"description": "Delivery End Time (HHMMSS)",
+									"default": "",
+									"examples": [
+										"165815"
+									]
+								}
+							},
+							"additionalProperties": true
+						}
+					},
+					"additionalProperties": true
+				},
+				"asnDetails": {
+					"$id": "#/properties/asn/properties/asnDetails",
+					"type": "array",
+					"title": "ASN Details",
+					"description": "Details of the ASN",
+					"default": {},
+					"properties": {
+						"poNumber": {
+							"$id": "#/properties/asn/properties/asnDetails/properties/poNumber",
+							"type": "string",
+							"title": "PurchaseOrder Number",
+							"description": "PurchaseOrder Number",
+							"default": ""
+						},
+						"asnLines": {
+							"$id": "#/properties/asn/properties/asnDetails/properties/asnLines",
+							"type": "array",
+							"title": "ASN Line Items",
+							"description": "ASN Line Item details",
+							"default": [],
+							"additionalItems": true,
+							"items": {
+								"$id": "#/properties/asn/properties/asnDetails/properties/asnLines/items",
+								"anyOf": [{
+									"$id": "#/properties/asn/properties/asnDetails/properties/asnLines/items/anyOf/0",
+									"type": "object",
+									"title": "ASN Line Item",
+									"description": "ASN Line Item",
+									"default": {},
+									"examples": [{
+										"LineItemNo": "?",
+										"itemName": "?",
+										"shipppedQuantity": "?"
+									}],
+									"properties": {
+										"LineItemNo": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/asnLines/items/anyOf/0/properties/LineItemNo",
+											"type": "string",
+											"title": "Line Item No",
+											"description": "Line Item No",
+											"default": ""
+										},
+										"itemName": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/asnLines/items/anyOf/0/properties/itemName",
+											"type": "string",
+											"title": "Item Name",
+											"description": "Name of the Item",
+											"default": ""
+										},
+										"shipppedQuantity": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/asnLines/items/anyOf/0/properties/shipppedQuantity",
+											"type": "number",
+											"title": "Shipped Quantity",
+											"description": "Shipped Quantity",
+											"default": "10"
+										},
+										"batch": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/batch",
+											"type": "string",
+											"title": "Batch",
+											"description": "Batch No",
+											"default": ""
+										},
+										"businessPartner": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/businessPartner",
+											"type": "string",
+											"title": "Business Partner",
+											"description": "Business Partner name",
+											"default": ""
+										},
+										"countryOfOrgin": {
+											"$id": "#/properties/asn/properties/asnDetails/properties/countryOfOrgin",
+											"type": "string",
+											"title": "Country of Origin",
+											"description": "Country of Origin",
+											"default": ""
+										}
+									},
+									"additionalProperties": true
+								}]
+							}
+						}
+					},
+					"additionalProperties": true
+				}
+			},
+			"additionalProperties": true
+		}
+	},
+	"additionalProperties": true
+}

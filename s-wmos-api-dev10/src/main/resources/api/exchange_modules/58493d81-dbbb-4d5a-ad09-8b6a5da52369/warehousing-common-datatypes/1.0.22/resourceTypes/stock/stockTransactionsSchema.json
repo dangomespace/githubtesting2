@@ -1,0 +1,184 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://wincanton.co.uk/StockTransactions.json",
+    "type": "object",
+    "title": "Stock Transactions",
+    "description": "The root schema for Stock Transactions.",
+    "default": {},
+    "properties": {
+        "StockTransactions": {
+            "$id": "#/properties/StockTransactions",
+            "type": "array",
+            "title": "Stock Transactions",
+            "description": "Stock Transactions",
+            "default": [],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/StockTransactions/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/StockTransactions/items/anyOf/0",
+                        "type": "object",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": {},
+                        "properties": {
+                            "warehouse": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/Warehouse",
+                                "type": "string",
+                                "title": "Warehouse",
+                                "description": "Warehouse ID",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "businessUnit": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/BusinessUnit",
+                                "type": "string",
+                                "title": "Business Unit",
+                                "description": "Business Unit",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "transactionType": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/TransactionType",
+                                "type": "string",
+                                "title": "Transaction Type",
+                                "description": "Transaction Type",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "transactionCode": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/TransactionCode",
+                                "type": "string",
+                                "title": "Transaction Code",
+                                "description": "Transaction Code",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "transactionNumber": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/TransactionNumber",
+                                "type": "string",
+                                "title": "Transaction Number",
+                                "description": "Transaction Number",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "sequenceNumber": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/SequenceNumber",
+                                "type": "string",
+                                "title": "Sequence Number",
+                                "description": "Sequence Number",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "reasonCode": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/ReasonCode",
+                                "type": "string",
+                                "title": "Reason Code",
+                                "description": "Reason Code",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "actionCode": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/ActionCode",
+                                "type": "string",
+                                "title": "Action Code",
+                                "description": "Action Code",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "SKU": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/SKU",
+                                "type": "string",
+                                "title": "SKU",
+                                "description": "Item SKU",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "LPN": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/LPN",
+                                "type": "string",
+                                "title": "LPN",
+                                "description": "License Plate Number",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "inventoryType": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/InventoryType",
+                                "type": "string",
+                                "title": "Inventory Type",
+                                "description": "Inventory Type",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "batchNumber": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/BatchNumber",
+                                "type": "string",
+                                "title": "Batch Number",
+                                "description": "Batch Number",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "adjustmentType": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/AdjustmentType",
+                                "type": "string",
+                                "title": "Adjustment Type",
+                                "description": "Adjustment Type",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "adjustmentQuantity": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/AdjustmentQuantity",
+                                "type": "string",
+                                "title": "Adjustment Quantity",
+                                "description": "Adjustment Quantity",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            },
+                            "processedDateTime": {
+                                "$id": "#/properties/StockTransactions/items/anyOf/0/properties/Processed",
+                                "type": "string",
+                                "title": "Processed Date and Time",
+                                "description": "Processed Date and Time",
+                                "default": "",
+                                "examples": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "additionalProperties": true
+                    }
+                ]
+            }
+        }
+    },
+    "additionalProperties": true
+}

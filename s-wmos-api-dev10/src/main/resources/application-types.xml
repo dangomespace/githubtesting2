@@ -1,0 +1,550 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="product" format="json">
+      <types:shape format="weave" example="examples/product-4.json"><![CDATA[%dw 2.0
+
+type product = {|
+  product: {|
+    productDetails: {|
+      itemName: String, 
+      description: String, 
+      businessUnit: String, 
+      productClass: String, 
+      protectionLevel: String, 
+      baseStorageUOM: String, 
+      productBarCode: String, 
+      supplierProductBarCode: String, 
+      productCosts: Array<{|        costType: String,         currencyCode: String,         displayUOM: String,         unitCost: Number {"typeId": "int"}      |}>, 
+      productPrice: Array<{|        channelType: String,         currencyCode: String,         displayUOM: String,         priceType: String,         retailPrice: Number {"typeId": "int"},         unitPrice: Number {"typeId": "int"}      |}>, 
+      facilities: Array<{| facility: String |}>, 
+      productPackageData: {|
+        productPackage: {|
+          packageUOM: String, 
+          quantity: Number {"typeId": "int"}
+        |}
+      |}, 
+      productFacilityWmos: Array<{|        facility: String,         lpnPerTier: Number {"typeId": "int"},         defaultWaveProcessType: Number {"typeId": "int"},         activeMaxUnits: Number {"typeId": "int"},         activeMaxLpns: Number {"typeId": "int"},         pickMaxLpns: Number {"typeId": "int"},         pickMaxUnits: Number {"typeId": "int"},         fifoRange: Number {"typeId": "int"},         productAverageWeight: Number {"typeId": "int"},         putawayType: String,         allocationType: String      |}>, 
+      bondedProduct: Boolean, 
+      seasonalProduct: Boolean, 
+      productWmos: {|
+        batchReqd: String, 
+        cntryOfOrgnReqd: String, 
+        dateCode: String, 
+        dateWindow: String, 
+        expDateReqd: String, 
+        mfgDateReqd: String, 
+        prodStatReqd: String, 
+        promptForVendor: String, 
+        shipByDateReqd: String
+      |}
+    |}
+  |}
+|} {"example": "{\\\"product\\\":{\\\"productDetails\\\":{\\\"itemName\\\":\\\"703421\\\",\\\"description\\\":\\\"FUNTIME SUNLOUNGER\\\",\\\"businessUnit\\\":\\\"101\\\",\\\"productClass\\\":\\\"\\\",\\\"protectionLevel\\\":\\\"\\\",\\\"baseStorageUOM\\\":\\\"\\\",\\\"productBarCode\\\":\\\"2200004130002\\\",\\\"supplierProductBarCode\\\":\\\"\\\",\\\"productCosts\\\":[{\\\"costType\\\":\\\"\\\",\\\"currencyCode\\\":\\\"\\\",\\\"displayUOM\\\":\\\"\\\",\\\"unitCost\\\":0}],\\\"productPrice\\\":[{\\\"channelType\\\":\\\"\\\",\\\"currencyCode\\\":\\\"\\\",\\\"displayUOM\\\":\\\"\\\",\\\"priceType\\\":\\\"\\\",\\\"retailPrice\\\":0,\\\"unitPrice\\\":0}],\\\"facilities\\\":[{\\\"facility\\\":\\\"\\\"}],\\\"productPackageData\\\":{\\\"productPackage\\\":{\\\"packageUOM\\\":\\\"Pack\\\",\\\"quantity\\\":1}},\\\"productFacilityWmos\\\":[{\\\"facility\\\":\\\"\\\",\\\"lpnPerTier\\\":0,\\\"defaultWaveProcessType\\\":0,\\\"activeMaxUnits\\\":0,\\\"activeMaxLpns\\\":0,\\\"pickMaxLpns\\\":0,\\\"pickMaxUnits\\\":0,\\\"fifoRange\\\":0,\\\"productAverageWeight\\\":0,\\\"putawayType\\\":\\\"\\\",\\\"allocationType\\\":\\\"\\\"}],\\\"bondedProduct\\\":false,\\\"seasonalProduct\\\":false,\\\"productWmos\\\":{\\\"batchReqd\\\":\\\"\\\",\\\"cntryOfOrgnReqd\\\":\\\"\\\",\\\"dateCode\\\":\\\"\\\",\\\"dateWindow\\\":\\\"\\\",\\\"expDateReqd\\\":\\\"\\\",\\\"mfgDateReqd\\\":\\\"\\\",\\\"prodStatReqd\\\":\\\"\\\",\\\"promptForVendor\\\":\\\"\\\",\\\"shipByDateReqd\\\":\\\"\\\"}}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="productList" format="json">
+      <types:shape format="weave" example="examples/productList-1.json"><![CDATA[%dw 2.0
+
+type productList = {|
+  products: Array<{|    productKeyOnly: String,     businessUnit: String,     businessPartner: String,     pageSize: Number {"typeId": "int"},     pageIndex: Number {"typeId": "int"}  |}>
+|} {"example": "{\\\"products\\\":[{\\\"productKeyOnly\\\":\\\"\\\",\\\"businessUnit\\\":\\\"\\\",\\\"businessPartner\\\":\\\"\\\",\\\"pageSize\\\":0,\\\"pageIndex\\\":0}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="distributionOrder" format="json">
+      <types:shape format="weave" example="examples/distribution_orders.json"><![CDATA[%dw 2.0
+
+type distributionOrder = {|
+  order: {|
+    header: {|
+      orderNumber: String, 
+      businessUnit: String, 
+      orderType: String, 
+      isCancelled: Boolean, 
+      billingMethod: String, 
+      status: String, 
+      originDetails: {|
+        facility: String, 
+        address: {|
+          addressLine1: String, 
+          addressLine2: String, 
+          city: String, 
+          countryCode: String, 
+          postalCode: String, 
+          stateProv: String
+        |}, 
+        contact: {|
+          firstName: String, 
+          lastName: String, 
+          phoneNumber: String, 
+          emailId: String, 
+          faxNumber: String
+        |}
+      |}, 
+      destinationDetails: {|
+        facility: String, 
+        address: {|
+          addressLine1: String, 
+          addressLine2: String, 
+          city: String, 
+          countryCode: String, 
+          postalCode: String, 
+          stateProv: String
+        |}, 
+        contact: {|
+          firstName: String, 
+          lastName: String, 
+          phoneNumber: String, 
+          emailId: String, 
+          faxNumber: String
+        |}
+      |}, 
+      shipmentDetails: {|
+        pickUp: {|
+          startDate: String, 
+          startTime: String, 
+          endDate: String, 
+          endTime: String
+        |}, 
+        delivery: {|
+          startDate: String, 
+          startTime: String, 
+          endDate: String, 
+          endTime: String
+        |}, 
+        Classification: {|
+          productClass: String, 
+          protectionLevel: String, 
+          isHazmat: Boolean, 
+          isPerishable: Boolean, 
+          transportationResponsibilityCode: String
+        |}
+      |}
+    |}, 
+    lineItems: Array<{|      lineItemNo: String,       itemName: String,       itemTin: String,       description: String,       orderSize: Number {"typeId": "double"},       orderSizeUOM: String,       totalMonetaryValue: Number {"typeId": "double"},       monetaryValueCurrency: String,       monetaryValueUOM: String,       unitMonetaryValue: Number {"typeId": "double"},       allowSubstitution: Boolean,       commodityClassCode: String,       productClassCode: String,       protectionLevelCode: String,       isCancelled: Boolean,       isClosed: Boolean    |}>
+  |}
+|} {"example": "{\\\"order\\\":{\\\"header\\\":{\\\"orderNumber\\\":\\\"10000000\\\",\\\"businessUnit\\\":\\\"100\\\",\\\"orderType\\\":\\\"Customer Order\\\",\\\"isCancelled\\\":false,\\\"billingMethod\\\":\\\"\\\",\\\"status\\\":\\\"Released\\\",\\\"originDetails\\\":{\\\"facility\\\":\\\"\\\",\\\"address\\\":{\\\"addressLine1\\\":\\\"\\\",\\\"addressLine2\\\":\\\"\\\",\\\"city\\\":\\\"\\\",\\\"countryCode\\\":\\\"\\\",\\\"postalCode\\\":\\\"\\\",\\\"stateProv\\\":\\\"\\\"},\\\"contact\\\":{\\\"firstName\\\":\\\"\\\",\\\"lastName\\\":\\\"\\\",\\\"phoneNumber\\\":\\\"\\\",\\\"emailId\\\":\\\"\\\",\\\"faxNumber\\\":\\\"\\\"}},\\\"destinationDetails\\\":{\\\"facility\\\":\\\"\\\",\\\"address\\\":{\\\"addressLine1\\\":\\\"Widnes Stadium\\\",\\\"addressLine2\\\":\\\"Lower House Lane\\\",\\\"city\\\":\\\"Widnes\\\",\\\"countryCode\\\":\\\"UK\\\",\\\"postalCode\\\":\\\"WA8 7DZ\\\",\\\"stateProv\\\":\\\"\\\"},\\\"contact\\\":{\\\"firstName\\\":\\\"Bruce\\\",\\\"lastName\\\":\\\"Reardon\\\",\\\"phoneNumber\\\":\\\"0151 511 6130\\\",\\\"emailId\\\":\\\"\\\",\\\"faxNumber\\\":\\\"\\\"}},\\\"shipmentDetails\\\":{\\\"pickUp\\\":{\\\"startDate\\\":\\\"\\\",\\\"startTime\\\":\\\"\\\",\\\"endDate\\\":\\\"\\\",\\\"endTime\\\":\\\"\\\"},\\\"delivery\\\":{\\\"startDate\\\":\\\"\\\",\\\"startTime\\\":\\\"\\\",\\\"endDate\\\":\\\"\\\",\\\"endTime\\\":\\\"\\\"},\\\"Classification\\\":{\\\"productClass\\\":\\\"\\\",\\\"protectionLevel\\\":\\\"\\\",\\\"isHazmat\\\":true,\\\"isPerishable\\\":true,\\\"transportationResponsibilityCode\\\":\\\"\\\"}}},\\\"lineItems\\\":[{\\\"lineItemNo\\\":\\\"100\\\",\\\"itemName\\\":\\\"1001\\\",\\\"itemTin\\\":\\\"1\\\",\\\"description\\\":\\\"\\\",\\\"orderSize\\\":110.0,\\\"orderSizeUOM\\\":\\\"Units\\\",\\\"totalMonetaryValue\\\":0.0,\\\"monetaryValueCurrency\\\":\\\"0\\\",\\\"monetaryValueUOM\\\":\\\"0\\\",\\\"unitMonetaryValue\\\":0.0,\\\"allowSubstitution\\\":false,\\\"commodityClassCode\\\":\\\"\\\",\\\"productClassCode\\\":\\\"\\\",\\\"protectionLevelCode\\\":\\\"\\\",\\\"isCancelled\\\":false,\\\"isClosed\\\":false}]}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="distributionOrderList" format="json">
+      <types:shape format="weave" example="examples/distributionOrderList-1.json"><![CDATA[%dw 2.0
+
+type distributionOrderList = {|
+  distributionOrders: Array<{|    doNumber: String,     businessUnit: String  |}>
+|} {"example": "{\\\"distributionOrders\\\":[{\\\"doNumber\\\":\\\"\\\",\\\"businessUnit\\\":\\\"\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="purchaseOrder" format="json">
+      <types:shape format="weave" example="examples/purchaseOrderUpdated.json"><![CDATA[%dw 2.0
+
+type purchaseOrder = {|
+  purchaseOrder: {|
+    header: {|
+      poNumber: String, 
+      businessUnit: String, 
+      businessPartner: String, 
+      status: String, 
+      isCancelled: Boolean, 
+      originDetails: {|
+        facility: String, 
+        contact: {|
+          firstName: String, 
+          lastName: String, 
+          phoneNumber: String, 
+          emailId: String, 
+          faxNumber: String
+        |}, 
+        address: {|
+          addressLine1: String, 
+          addressLine2: String, 
+          city: String, 
+          countryCode: String, 
+          postalCode: String, 
+          stateProv: String
+        |}
+      |}, 
+      pickUp: {|
+        startDate: String, 
+        startTime: String, 
+        endDate: String, 
+        endTime: String
+      |}, 
+      billTo: {|
+        facility: String, 
+        contact: {|
+          firstName: String, 
+          lastName: String, 
+          phoneNumber: String, 
+          emailId: String, 
+          faxNumber: String
+        |}, 
+        address: {|
+          addressLine1: String, 
+          addressLine2: String, 
+          city: String, 
+          countryCode: String, 
+          postalCode: String, 
+          stateProv: String
+        |}
+      |}, 
+      shipTo: {|
+        facility: String, 
+        contact: {|
+          firstName: String, 
+          lastName: String, 
+          phoneNumber: String, 
+          emailId: String, 
+          faxNumber: String
+        |}, 
+        address: {|
+          addressLine1: String, 
+          addressLine2: String, 
+          city: String, 
+          countryCode: String, 
+          postalCode: String, 
+          stateProv: String
+        |}
+      |}, 
+      delivery: {|
+        startDate: String, 
+        startTime: String, 
+        endDate: String, 
+        endTime: String
+      |}, 
+      requestedDelivery: {|
+        date: String, 
+        time: String
+      |}, 
+      productClass: String, 
+      protectionLevel: String, 
+      grandTotal: String, 
+      paymentMethod: String, 
+      taxCharges: String
+    |}, 
+    lineItems: Array<{|      lineItemNo: String,       itemName: String,       description: String,       itemTin: String,       orderSize: Number {"typeId": "int"},       orderSizeUOM: String,       allowSubstitution: Boolean,       productClassCode: String,       protectionLevelCode: String,       commodityClassCode: String,       unitMonetaryValue: Number {"typeId": "int"},       totalMonetaryValue: Number {"typeId": "int"},       monetaryValueUOM: String,       monetaryValueCurrency: String,       isCancelled: Boolean,       isClosed: Boolean    |}>
+  |}
+|} {"example": "{\\\"purchaseOrder\\\":{\\\"header\\\":{\\\"poNumber\\\":\\\"\\\",\\\"businessUnit\\\":\\\"100\\\",\\\"businessPartner\\\":\\\"\\\",\\\"status\\\":\\\"Created\\\",\\\"isCancelled\\\":false,\\\"originDetails\\\":{\\\"facility\\\":\\\"\\\",\\\"contact\\\":{\\\"firstName\\\":\\\"\\\",\\\"lastName\\\":\\\"\\\",\\\"phoneNumber\\\":\\\"\\\",\\\"emailId\\\":\\\"\\\",\\\"faxNumber\\\":\\\"\\\"},\\\"address\\\":{\\\"addressLine1\\\":\\\"\\\",\\\"addressLine2\\\":\\\"\\\",\\\"city\\\":\\\"?\\\",\\\"countryCode\\\":\\\"\\\",\\\"postalCode\\\":\\\"\\\",\\\"stateProv\\\":\\\"\\\"}},\\\"pickUp\\\":{\\\"startDate\\\":\\\"28062020\\\",\\\"startTime\\\":\\\"100956\\\",\\\"endDate\\\":\\\"31102020\\\",\\\"endTime\\\":\\\"165815\\\"},\\\"billTo\\\":{\\\"facility\\\":\\\"?\\\",\\\"contact\\\":{\\\"firstName\\\":\\\"\\\",\\\"lastName\\\":\\\"\\\",\\\"phoneNumber\\\":\\\"\\\",\\\"emailId\\\":\\\"\\\",\\\"faxNumber\\\":\\\"\\\"},\\\"address\\\":{\\\"addressLine1\\\":\\\"\\\",\\\"addressLine2\\\":\\\"\\\",\\\"city\\\":\\\"?\\\",\\\"countryCode\\\":\\\"\\\",\\\"postalCode\\\":\\\"\\\",\\\"stateProv\\\":\\\"\\\"}},\\\"shipTo\\\":{\\\"facility\\\":\\\"\\\",\\\"contact\\\":{\\\"firstName\\\":\\\"\\\",\\\"lastName\\\":\\\"\\\",\\\"phoneNumber\\\":\\\"\\\",\\\"emailId\\\":\\\"\\\",\\\"faxNumber\\\":\\\"\\\"},\\\"address\\\":{\\\"addressLine1\\\":\\\"\\\",\\\"addressLine2\\\":\\\"\\\",\\\"city\\\":\\\"?\\\",\\\"countryCode\\\":\\\"\\\",\\\"postalCode\\\":\\\"\\\",\\\"stateProv\\\":\\\"\\\"}},\\\"delivery\\\":{\\\"startDate\\\":\\\"28062020\\\",\\\"startTime\\\":\\\"100956\\\",\\\"endDate\\\":\\\"31102020\\\",\\\"endTime\\\":\\\"165815\\\"},\\\"requestedDelivery\\\":{\\\"date\\\":\\\"\\\",\\\"time\\\":\\\"\\\"},\\\"productClass\\\":\\\"\\\",\\\"protectionLevel\\\":\\\"\\\",\\\"grandTotal\\\":\\\"\\\",\\\"paymentMethod\\\":\\\"\\\",\\\"taxCharges\\\":\\\"\\\"},\\\"lineItems\\\":[{\\\"lineItemNo\\\":\\\"00010\\\",\\\"itemName\\\":\\\"HUSP000000595084402\\\",\\\"description\\\":\\\"\\\",\\\"itemTin\\\":\\\"?\\\",\\\"orderSize\\\":0,\\\"orderSizeUOM\\\":\\\"?\\\",\\\"allowSubstitution\\\":false,\\\"productClassCode\\\":\\\"?\\\",\\\"protectionLevelCode\\\":\\\"?\\\",\\\"commodityClassCode\\\":\\\"?\\\",\\\"unitMonetaryValue\\\":0,\\\"totalMonetaryValue\\\":0,\\\"monetaryValueUOM\\\":\\\"?\\\",\\\"monetaryValueCurrency\\\":\\\"?\\\",\\\"isCancelled\\\":false,\\\"isClosed\\\":false}]}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="asn" format="json">
+      <types:shape format="json-schema" location="schemas/ASN_Schema_V1.0.json"/>
+    </types:type>
+    <types:type name="validationType" format="json">
+      <types:shape format="weave" example="examples/validation.json"><![CDATA[%dw 2.0
+
+type validationType = Array<{|  validationType: String,   code: Number {"typeId": "int"},   message: String|}> {"example": "[{\\\"validationType\\\":\\\"Error\\\",\\\"code\\\":400,\\\"message\\\":\\\"Error on validation\\\"},{\\\"validationType\\\":\\\"Warning\\\",\\\"code\\\":400,\\\"message\\\":\\\"Error on validation\\\"},{\\\"validationType\\\":\\\"Info\\\",\\\"code\\\":400,\\\"message\\\":\\\"Error on validation\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="asn_example" format="json">
+      <types:shape format="weave" example="examples/asn (2).json"><![CDATA[%dw 2.0
+
+type asn_example = {|
+  asn: {|
+    header: {|
+      asnNumber: String, 
+      asnType: String, 
+      businessUnit: String, 
+      originFacility: String, 
+      originType: String, 
+      destinationFacility: String, 
+      shipmentNo: String, 
+      status: String, 
+      pickUp: {|
+        startDate: String, 
+        startTime: String, 
+        endDate: String, 
+        endTime: String
+      |}, 
+      delivery: {|
+        startDate: String, 
+        startTime: String, 
+        endDate: String, 
+        endTime: String
+      |}
+    |}, 
+    asnDetails: Array<{|      poNumber: String,       asnLines: Array<{|        lineItemNo: String,         itemName: String,         shippedQuantity: Number {"typeId": "int"},         batch: String,         businessPartner: String,         countryOforigin: String      |}>
+    |}>
+  |}
+|} {"example": "{\\\"asn\\\":{\\\"header\\\":{\\\"asnNumber\\\":\\\"100010\\\",\\\"asnType\\\":\\\"\\\",\\\"businessUnit\\\":\\\"100\\\",\\\"originFacility\\\":\\\"\\\",\\\"originType\\\":\\\"Manufacturing Plant\\\",\\\"destinationFacility\\\":\\\"01\\\",\\\"shipmentNo\\\":\\\"\\\",\\\"status\\\":\\\"20\\\",\\\"pickUp\\\":{\\\"startDate\\\":\\\"14\\/01\\/2020\\\",\\\"startTime\\\":\\\"15:00\\\",\\\"endDate\\\":\\\"14\\/02\\/2020\\\",\\\"endTime\\\":\\\"15:00\\\"},\\\"delivery\\\":{\\\"startDate\\\":\\\"14\\/01\\/2020\\\",\\\"startTime\\\":\\\"15:00\\\",\\\"endDate\\\":\\\"14\\/02\\/2020\\\",\\\"endTime\\\":\\\"15:00\\\"}},\\\"asnDetails\\\":[{\\\"poNumber\\\":\\\"100000\\\",\\\"asnLines\\\":[{\\\"lineItemNo\\\":\\\"1\\\",\\\"itemName\\\":\\\"1001\\\",\\\"shippedQuantity\\\":20,\\\"batch\\\":\\\"\\\",\\\"businessPartner\\\":\\\"\\\",\\\"countryOforigin\\\":\\\"\\\"}]}]}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="auth" format="json">
+      <types:shape format="weave" example="examples/authentication.json"><![CDATA[%dw 2.0
+
+type auth = {|
+  security: {|
+    action: String, 
+    contextID: String, 
+    credentials: {|
+      username: String, 
+      password: String
+    |}
+  |}
+|} {"example": "{\\\"security\\\":{\\\"action\\\":\\\"SignIn\\\",\\\"contextID\\\":\\\"123456\\\",\\\"credentials\\\":{\\\"username\\\":\\\"userX\\\",\\\"password\\\":\\\"pa55w0rd\\\"}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="holdings" format="json">
+      <types:shape format="weave" example="examples/stock_holdings.json"><![CDATA[%dw 2.0
+
+type holdings = {|
+  stockAdjustments: Array<{|    facility: String,     businessUnit: String,     itemID: String,     SKU: String,     sizeDesc: String,     description: String,     qtyAvailable: String,     qtyUnavailable: String,     qtyCommit: String,     qtyAllocated: String,     totalBOH: String  |}>
+|} {"example": "{\\\"stockAdjustments\\\":[{\\\"facility\\\":\\\"\\\",\\\"businessUnit\\\":\\\"\\\",\\\"itemID\\\":\\\"\\\",\\\"SKU\\\":\\\"\\\",\\\"sizeDesc\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"qtyAvailable\\\":\\\"\\\",\\\"qtyUnavailable\\\":\\\"\\\",\\\"qtyCommit\\\":\\\"\\\",\\\"qtyAllocated\\\":\\\"\\\",\\\"totalBOH\\\":\\\"\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="transactions" format="json">
+      <types:shape format="weave" example="examples/stock_transactions.json"><![CDATA[%dw 2.0
+
+type transactions = {|
+  stockTransactions: Array<{|    warehouse: String,     businessUnit: String,     transactionType: String,     transactionCode: String,     transactionNumber: String,     sequenceNumber: String,     reasonCode: String,     actionCode: String,     SKU: String,     LPN: String,     inventoryType: String,     batchNumber: String,     adjustmentType: String,     adjustmentQuantity: String,     processedDateTime: String  |}>
+|} {"example": "{\\\"stockTransactions\\\":[{\\\"warehouse\\\":\\\"\\\",\\\"businessUnit\\\":\\\"\\\",\\\"transactionType\\\":\\\"\\\",\\\"transactionCode\\\":\\\"\\\",\\\"transactionNumber\\\":\\\"\\\",\\\"sequenceNumber\\\":\\\"\\\",\\\"reasonCode\\\":\\\"\\\",\\\"actionCode\\\":\\\"\\\",\\\"SKU\\\":\\\"\\\",\\\"LPN\\\":\\\"\\\",\\\"inventoryType\\\":\\\"\\\",\\\"batchNumber\\\":\\\"\\\",\\\"adjustmentType\\\":\\\"\\\",\\\"adjustmentQuantity\\\":\\\"\\\",\\\"processedDateTime\\\":\\\"\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#cda8a731-1f7a-4886-9c59-10dc3330fa2d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="product"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#79402646-1a5c-4065-9614-dc55e102fee4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="product"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#92e4cb3d-9151-4947-ac19-912b9b0525c0">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="productList"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ace6c8da-adbb-4f7d-95a8-21222bc96d71">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="distributionOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#54a6d37f-ac99-499a-afc9-53533b224bed">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="distributionOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#2c41aee7-04c9-4bd6-a335-f36c96c8dd40">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="distributionOrderList"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#1307a546-52af-4636-993c-5da07adf9c93">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="distributionOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b0f4ebfa-a5fa-445a-84a1-3e9a797071cf">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#48b8ee68-305c-44f2-8361-36c678bd4d91">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#8fb0c1b1-7b89-47fd-8390-d849e47600d7">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#0f99e77d-c44e-4129-b4a0-9048d700c7db">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:variables>
+          <types:variable name="productIdentifier" type="purchaseOrder"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d0d1665d-6076-41ed-8333-7ca729884d49">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="product"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#892b1b8a-fc81-4588-b4ab-304ba11fb2ac">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ff578d3e-60d7-409f-a001-f32da2e1b45c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="distributionOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#a58e8909-744a-46d2-a73d-3aa866fe39f7">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn_example"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#4c9dd278-d6ed-4bda-bdcc-b61e48007c1b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn_example"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#5d64db66-edca-4f76-9bdb-6c763748bd0a">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#dabd008d-ab7d-48da-93b0-e07f2a89f05d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#908fcf9b-6077-42bc-be1e-7d937d896665">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn_example"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b13ff3d1-abcb-4468-8afc-3021c250d435">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="purchaseOrder"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#35f9a384-eb64-4393-93c1-91031bb621bb">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="product"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b86af46e-7bd3-4932-8766-3d54beeee650">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="product"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#60a5c47a-c0d2-47c9-97e0-e4760f1c3321">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="holdings"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#f1640d73-a295-4eb5-8877-a9753581acb8">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="transactions"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#8397da9f-35a6-4ca4-89ac-9517be8b824e"/>
+  <types:enrichment select="#6fbdce12-427f-4ae4-829e-31ecbeb5862d"/>
+  <types:enrichment select="#d86d3e34-efaa-4b74-bbf0-a707220b562a"/>
+  <types:enrichment select="#5f676cc1-bf6a-4ccc-8ee5-52fec3f0246d"/>
+  <types:enrichment select="#04af0ccc-7a29-4305-9a8a-af17264c3c35"/>
+  <types:enrichment select="#7d6c7182-599b-40cb-8024-686ee11f1e00">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="asn_example"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#22ab9339-abcc-489e-bf51-20bf1b3128bf"/>
+  <types:enrichment select="#b049fad8-b902-4d2d-b6a4-cc659a8e83d2"/>
+</types:mule>

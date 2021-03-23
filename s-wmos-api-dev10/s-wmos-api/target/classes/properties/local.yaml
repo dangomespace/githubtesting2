@@ -1,0 +1,18 @@
+api:
+ id: "15844687"
+https:
+ frequency : "10000"
+ retry : "3"
+ timeout : "60000"
+ tls:
+   keystore:
+    keyStorePassword: "wincanton"
+    privateKeyPassword: "wincanton"
+    filePath: "certificates/server-keystore.jks"
+   truststore:
+    keyStorePassword: "wincanton"
+    privateKeyPassword: "wincanton"
+    filePath: "certificates/server-truststore.jks"   
+
+ 
+template: "api-local"  

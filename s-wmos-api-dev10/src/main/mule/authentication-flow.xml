@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oauth/current/mule-oauth.xsd">
+
+	<sub-flow name="action" doc:id="08328d3f-1867-43b9-af57-0c50c549752a" >
+		<set-variable value="#[payload.action]" doc:name="action" doc:id="41677b0c-44db-4725-9af1-afc9aaa8ddca" variableName="action" />
+		<validation:is-not-null doc:name="action" doc:id="c444af67-49a2-4015-94cd-3a3d8c66b75f" value="#[vars.action]" message="Action is not defined"/>
+		<flow-ref doc:name="retrieve-credentials" doc:id="bb74fbcb-d0f3-468d-822e-c4f11950f31b" name="retrieve-credentials"/>
+		<logger level="INFO" doc:name="Logger" doc:id="392ab4fe-e802-4f31-9844-788636f41891" message="${secure::api.id}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="afcb0bc6-5f02-4d4b-8411-4c08836c0a54" message="${secure::os.ttl}" category="os ttl"/>
+		<logger level="INFO" doc:name="Logger" doc:id="96861b4a-2a0a-47b1-a249-b00f66690ace" message="${secure::os.expInterval}" category="expInterval"/>
+		<logger level="INFO" doc:name="Logger" doc:id="682410cd-fa3b-4386-ac8d-eab60a2eb660" message="in the action flow" />
+		<logger level="INFO" doc:name="Logger" doc:id="b9d66d4c-203b-4b36-9f21-972254df306a" message="#[payload]" />
+		<logger level="INFO" doc:name="Logger" doc:id="bfdc4370-174c-4844-b62c-3810fd0ee7d1" message="#[vars.action]" category="action value" />
+		<set-variable value="#[payload.contextID]" doc:name="contextID" doc:id="f5c53e8b-9e93-4c6f-b673-a21c89c1389f" variableName="contextID" />
+		<logger level="INFO" doc:name="Logger" doc:id="d2692387-f4a0-4661-a203-e21600b303f1" message="payload" />
+		<choice doc:name="Choice" doc:id="3379bde8-6fae-455c-adf9-caa35c42cf54" >
+			<when expression="#[vars.action == 'SignIn']" >
+				<flow-ref doc:name="action-signin" doc:id="30ae9167-55ef-4b47-b92d-f5530b029863" name="action-signin" />
+			</when>
+			<when expression="#[vars.action == 'SignOut']" >
+				<flow-ref doc:name="action-signout" doc:id="c7e94362-e055-4867-9468-caa4e608e465" name="action-signout" />
+			</when>
+		</choice>
+	</sub-flow>
+	<sub-flow name="retrieve-credentials" doc:id="eccbae6e-81ef-4f04-a25f-21020559dd82" >
+		<ee:transform doc:name="retrieve username" doc:id="4492991e-d74f-4831-b056-5b531e9b517d">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="username"><![CDATA[%dw 2.0
+output application/json	
+---
+
+p('secure::authentication.' ++ vars.clientID ++ '.username')
+
+
+
+
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<validation:is-not-null doc:name="Is not null" doc:id="b9283fc3-e93c-4dd0-a174-2714e17faa0a" value="#[vars.username]" message="Invalid clientID" />
+		<logger level="INFO" doc:name="Logger" doc:id="edc05e72-2f91-4b71-97f8-8f8c44348917" message="#[vars.username]" category="username retrieved" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="5ac0bb68-4816-47b0-a1e7-17ac41548cf3" variableName="osKey" />
+	</sub-flow>
+	<sub-flow name="retrieve-contextID" doc:id="dcfe009f-669e-4d88-9a47-b5f3eeb0093d" >
+		<os:retrieve doc:name="Retrieve contextID" doc:id="04be685d-677d-4423-8a21-0e60c698b6c2" key="#[vars.osKey]" objectStore="contextID" target="contextID" />
+	</sub-flow>
+	<sub-flow name="action-signin" doc:id="40d6ff42-10c7-4ae1-ab98-2987ba551f2b" >
+		<logger level="INFO" doc:name="Logger" doc:id="3faf3f5f-6557-49f3-a027-8cfeb7fccd8a" message="#[vars.osKey]" category="osKey"/>
+		<try doc:name="Try" doc:id="f0b01f02-286e-46bd-9be6-f8edd58e4891" >
+			<logger level="INFO" doc:name="Logger" doc:id="8772d172-7552-4b42-b1f0-0ff2cb2f291e" message="before retrieve OS"/>
+			<flow-ref doc:name="retrieve-contextID" doc:id="f45453f0-ed43-4421-9ad1-6fe778f81125" name="retrieve-contextID"/>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b03cc999-0a8b-442a-b48e-879016a57450" type="OS:KEY_NOT_FOUND">
+					<logger level="INFO" doc:name="Logger" doc:id="b8b583f1-01cd-4d6f-9772-b246afb188c2" message="OSkey not found"/>
+					<flow-ref doc:name="Retrives new contextID from WMOS" doc:id="6df4f357-66c7-4d4e-8168-5ebe3ab389de" name="signIn-manhattan"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="414a8956-53b0-48f4-9416-5ee6e569e7ca" message="after try scope"/>
+		<ee:transform doc:name="returns contextID" doc:id="ff61d5ff-3ead-4d4c-8177-b0cc9a8c0377">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	contextID : vars.contextID
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="signIn-manhattan" doc:id="0793e3b7-39c7-4e92-9272-fed9c4078271">
+		<logger level="INFO" doc:name="Logger" doc:id="49b510fc-4706-4be5-8196-3bc96fc6523a" message="in the Retriveing context id" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::authentication.' ++ vars.clientID ++ '.password')]" doc:name="password" doc:id="c18a76fc-12da-4c94-b99d-e73f602bb868" variableName="password"/>
+		<logger level="INFO" doc:name="Logger" doc:id="de853471-884e-4564-9ba7-58ee9bfe2226" message="#[vars.password]" category="password logged"/>
+		<ee:transform doc:name="Manhattan signIn" doc:id="a1b18864-2bb8-4f9c-b0bf-6f39370639c2">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://security.services.scope.manh.com/
+---
+{
+	ns0#signIn: {
+		arg0: vars.username,
+		arg1: vars.password
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="cf4d11e9-964f-4f34-80ac-f396027173fb" message="#[payload]" category="Manhattan signin request body"/>
+		<wsc:consume doc:name="Manhattan signIn" doc:id="46088e23-3d72-43ff-afd2-644c373e4049" operation="${secure::wsc.authentication-service.operation.signIn}" config-ref="wsc-authentication-manhattan" />
+		<logger level="INFO" doc:name="Logger" doc:id="8f526379-eb3a-4ff9-bae8-aa593653007e" message="#[payload]" category="consume payload" />
+		<set-variable value="#[%dw 2.0
+output application/json
+---
+payload.body.signInResponse.return]" doc:name="contextID" doc:id="910ac42a-2110-4158-b30b-d4e41123ab41" variableName="contextID" />
+		<os:store doc:name="save contextID to object store" doc:id="41225025-8e3a-4862-8b38-5a60f2eeb8a2" key="#[vars.osKey]" objectStore="contextID">
+			<os:value><![CDATA[#[vars.contextID]]]></os:value>
+		</os:store>
+		<logger level="INFO" doc:name="Logger" doc:id="a48457e8-7fe9-4318-9ad0-af465ccd24ed" message="#[payload]" category="retrieve all payload" />
+	</sub-flow>
+	<sub-flow name="action-signout" doc:id="8938e428-6116-4adc-9ec2-b31a253a63a0">
+		<validation:is-not-null doc:name="contextID Is not null" doc:id="a63f28dc-1bf3-419f-854d-f8cd54a5ba22" value="#[vars.contextID]" message="contextID is null"/>
+		<validation:is-not-blank-string doc:name="contextID Is not blank string" doc:id="697c35f1-25c6-444b-9354-97e7eeeb8ebd" value="#[vars.contextID]" message="contextID is empty"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5ae956a9-fb56-4757-bbfc-c919ea3d23a4" message="#[payload]" category="retrieving  contextID from OS" />
+		<ee:transform doc:name="Manhattan-signOut" doc:id="ed4b229d-79ae-40c4-a25e-75bcc897c575" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://security.services.scope.manh.com/
+---
+{
+	ns0#signOut: {
+		arg0: payload.contextID
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Manhattan-signOut" doc:id="ae788caa-6577-4d02-907d-fde663d2cba8" operation="${secure::wsc.authentication-service.operation.signOut}" config-ref="wsc-authentication-manhattan"/>
+		<logger level="INFO" doc:name="signout" doc:id="edb1073e-2632-4cc2-beaf-0668b44e75db" message="#[payload]" category="after WSC request"/>
+		<flow-ref doc:name="remove-contextID-from-os" doc:id="578eef51-b9bb-4517-b384-9505f213b4f0" name="remove-contextID-from-os"/>
+		<ee:transform doc:name="contextID-removed-message" doc:id="cbbf5953-22a1-4726-9dc4-7a42e5dd78b7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var contextID = vars.contextID default ""
+
+---
+"message": "conxtexID: " ++ contextID  ++ " was successfully removed from OS"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="remove-contextID-from-os" doc:id="76a56790-cefc-44bb-9c39-fee2682053b4">
+		<try doc:name="Try" doc:id="50e18975-6625-4885-95fa-93488f41ea58">
+			<os:remove doc:name="Remove" doc:id="97ad1b24-a297-433b-8dbc-b2e7ffdf332b" key="#[vars.osKey]" objectStore="contextID" />
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="eefcdc55-ac99-4952-ad37-06e81b1ad641" type="OS:KEY_NOT_FOUND">
+					<logger level="INFO" doc:name="" doc:id="4d62f38e-f4b9-4b81-943a-ebadf509bf4c" message="contextID not found On Continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<sub-flow name="validate-businesUnit" doc:id="5b78f41b-8c08-475b-ab04-e96b5d929778" >
+		<ee:transform doc:name="retrieve username" doc:id="b81ff96d-321c-434b-8fc5-f459ff128196">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="username"><![CDATA[%dw 2.0
+output application/json	
+---
+
+p('secure::authentication.' ++ vars.clientID ++ '.username')
+
+
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="retrieve password" doc:id="fee08c1e-83d2-43fa-bb15-7dc2d12be5b9">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="password"><![CDATA[%dw 2.0
+output application/json	
+---
+
+p('secure::authentication.' ++ vars.clientID ++ '.password')
+
+
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<validation:is-not-null doc:name="Is not null vars.username" doc:id="bafe7ae5-0bf4-4423-9f40-dceb198186a0" value="#[vars.username]" message="Invalid clientID" />
+		<ee:transform doc:name="BU validation-getUserDetails" doc:id="1d5ea0e4-b51f-41db-a9d0-ce07e6dc4698">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://security.services.scope.manh.com/
+---
+{
+	ns0#getUserDetails: {
+		arg0: vars.username,
+		arg1: vars.password
+		
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="42ba322b-6629-4674-b7d3-c26d3c65f246" message="#[payload]" category="credentials" />
+		<wsc:consume doc:name="BU validation-getUserDetails" doc:id="602454bf-960c-4ca8-b050-4b748783ef02" config-ref="wsc-authentication-manhattan" operation="${secure::wsc.authentication-service.operation.getUserDetails}" />
+		<logger level="INFO" doc:name="Logger" doc:id="833d7ed9-347c-4767-b283-c035ed8927b6" message="#[payload]" category="after consume" />
+		<ee:transform doc:name="response" doc:id="7f6920ae-a5db-402f-a145-0c6cee01148b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="validate-contextID" doc:id="63ec584d-cf70-467c-9228-aa77615ecbab" >
+		<set-variable value="#[payload.contextID]" doc:name="contextIDReq" doc:id="1a83ae2d-4c9c-42d6-b321-c82bb106b012" variableName="contextIDReq"/>
+		<ee:transform doc:name="retrieve clientID" doc:id="94a3c572-220c-4ef7-892f-0657a8b23771" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="username" ><![CDATA[%dw 2.0
+output application/json	
+---
+
+p('secure::authentication.' ++ vars.clientID ++ '.username')
+
+
+
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<validation:is-not-null doc:name="Is not null" doc:id="f19b7c50-7a30-4e93-a83c-a63b10613a1c" value="#[vars.username]" message="Invalid clientID" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="a026bb40-8916-43fd-8fd1-71a1fbd01b03" variableName="osKey" />
+		<try doc:name="Try" doc:id="cb6f49a1-35a7-4b50-a874-6cb8697cd8b0" >
+			<logger level="INFO" doc:name="vars.osKey" doc:id="1619f14b-0916-407f-9e54-8dbedda2f4e0" message="#[vars.osKey]" category="osKey"/>
+			<logger level="INFO" doc:name="before retrieve OS" doc:id="a6fb9059-ae07-45aa-bc31-99362b0d926d" message="before retrieve OS" />
+			<flow-ref doc:name="retrieve-contextID" doc:id="58705979-fe49-484b-b464-f0189f5da7a3" name="retrieve-contextID" />
+			<logger level="INFO" doc:name="contextID returned from OS" doc:id="0826616e-df68-45e5-854d-53f1f587968a" message="#[vars.contextID]" category="contextID returned from OS"/>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fdbf194d-c92c-4d42-9221-3788057a1cc1" type="OS:KEY_NOT_FOUND">
+					<logger level="INFO" doc:name="OSkey not found" doc:id="340890ba-fb30-45d7-a30f-50225bb7520f" message="OSkey not found" />
+					<raise-error doc:name="Invalid token" doc:id="2fa77288-bbc9-4cc8-baca-bb4e6b7a787a" type="AUTH:INVALID_TOKEN" description="Invalid token"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger vars.contextID" doc:id="876b360e-9136-41c6-9c7c-2abe03b2ffba" message="#[vars.contextID]" category="contextID before validation"/>
+		<logger level="INFO" doc:name="Logger vars.contextIDReq" doc:id="59dfffbc-35bb-419e-8946-c22cc3927cc9" message="#[vars.contextIDReq]" category="contextIDReq before valitation"/>
+		<validation:is-true doc:name="token" doc:id="d382caed-f5db-4151-88a9-7cc9e2dcf879" message="Invalid token" expression="#[(vars.contextIDReq == vars.contextID)]" />
+		<ee:transform doc:name="Token valid" doc:id="8a0bd83e-cc35-42cd-945b-f71f6cb80a73">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	messsage: 'Token valid' 
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

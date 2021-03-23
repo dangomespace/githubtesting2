@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="create-purchase-order-flow" doc:id="35baf520-b16b-474d-a2f1-105e539964c3">
+		<logger level="INFO" doc:name="got-contextID" doc:id="5eb43258-ebc2-4d21-8b40-88920b2f786b" message="#[vars.contextID]" category="Got contextID"/>
+		<flow-ref doc:name="invalid-purchaseOrder-code" doc:id="4d538951-9669-42c2-8a22-7abef95d2abb" name="invalid-purchaseOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="6d97d2b0-d492-47f0-84be-7fac00fb0bda" />
+			<ee:transform doc:name="dataTime &amp; dataDate" doc:id="dac2d227-4a80-49d5-a90b-53a205a56c03" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="dataTime" ><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.purchaseOrder.header.delivery.endTime,
+	dStartTime: payload.purchaseOrder.header.delivery.startTime,
+	pEndTime: payload.purchaseOrder.header.pickUp.endTime,
+	pStartTime: payload.purchaseOrder.header.pickUp.startTime,
+    deliveryDttm: payload.purchaseOrder.header.requestedDelivery.time
+	
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate" ><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndDate : payload.purchaseOrder.header.delivery.endDate,
+	dStartDate: payload.purchaseOrder.header.delivery.startDate,
+	pEndDate: payload.purchaseOrder.header.pickUp.endDate,
+	pStartDate: payload.purchaseOrder.header.pickUp.startDate,
+	deliveryDttm: payload.purchaseOrder.header.requestedDelivery.date	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="ed55adb2-869f-4883-bde1-16baac8d463f" name="validate-time"/>
+		<flow-ref doc:name="validate-date" doc:id="3e15e728-6fbf-4728-84d3-c3899d4d59ac" name="validate-date"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f852dd01-e99a-43ee-af37-926f7d46ca62" message="#[payload]" category="check output payload"/>
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="aa4e3a8f-352b-4da3-aff7-04055c146a3e" />
+		<ee:transform doc:name="concat-values" doc:id="47c62171-804b-41a0-9cd8-30802adde85f">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="concatValues"><![CDATA[%dw 2.0
+output application/json
+fun nonEmptyCheck(text) = if (text == null or text == "") false else true
+---
+{
+	deliveryEnd: if (nonEmptyCheck(payload.purchaseOrder.header.delivery.endDate) and nonEmptyCheck(payload.purchaseOrder.header.delivery.endTime)) (payload.purchaseOrder.header.delivery.endDate ++ ", " ++ payload.purchaseOrder.header.delivery.endTime) else "", 
+	deliveryStart: if (nonEmptyCheck(payload.purchaseOrder.header.delivery.startDate) and nonEmptyCheck(payload.purchaseOrder.header.delivery.startTime)) (payload.purchaseOrder.header.delivery.startDate ++ ", " ++ payload.purchaseOrder.header.delivery.startTime) else "",
+	pickUpEnd: if (nonEmptyCheck(payload.purchaseOrder.header.pickUp.endDate) and nonEmptyCheck(payload.purchaseOrder.header.pickUp.endTime)) (payload.purchaseOrder.header.pickUp.endDate ++ ", " ++ payload.purchaseOrder.header.pickUp.endTime) else "",
+	pickUpStart: if (nonEmptyCheck(payload.purchaseOrder.header.pickUp.startDate) and nonEmptyCheck(payload.purchaseOrder.header.pickUp.startTime)) (payload.purchaseOrder.header.pickUp.startDate ++ ", " ++ payload.purchaseOrder.header.pickUp.startTime) else "",
+	requestedDeliveryDttm: if (nonEmptyCheck(payload.purchaseOrder.header.requestedDelivery.date) and nonEmptyCheck(payload.purchaseOrder.header.requestedDelivery.time)) (payload.purchaseOrder.header.requestedDelivery.date ++ ", " ++ payload.purchaseOrder.header.requestedDelivery.time) else ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="puchaseorder-to-wsdl" doc:id="b13ff3d1-abcb-4468-8afc-3021c250d435">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#createPurchaseOrder: {
+		contextId: vars.contextID,
+		purchaseOrderData: {
+			billToFacility: payload.purchaseOrder.header.billTo.facility,
+			businessPartner: payload.purchaseOrder.header.businessPartner,
+			deliveryEnd: vars.concatValues.deliveryEnd,
+			deliveryStart: vars.concatValues.deliveryStart,
+			destinationFacility: payload.purchaseOrder.header.shipTo.facility,
+			grandTotal: payload.purchaseOrder.header.grandTotal,
+			isCancelled: payload.purchaseOrder.header.isCancelled,
+			(payload.purchaseOrder.lineItems map ( lineItem , indexOfLineItem ) -> {
+				billToAddress: {
+					address: payload.purchaseOrder.header.billTo.address.addressLine1,
+					address2: payload.purchaseOrder.header.billTo.address.addressLine2,
+					city: payload.purchaseOrder.header.billTo.address.city,
+					countryCode: payload.purchaseOrder.header.billTo.address.countryCode,
+					postalCode: payload.purchaseOrder.header.billTo.address.postalCode,
+					stateProv: payload.purchaseOrder.header.billTo.address.stateProv
+				},
+				billToContact: {
+					emailId: payload.purchaseOrder.header.billTo.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.billTo.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.billTo.contact.firstName,
+					lastName: payload.purchaseOrder.header.billTo.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.billTo.contact.phoneNumber
+				},
+				destinationAddress: {
+					address: payload.purchaseOrder.header.shipTo.address.addressLine1,
+					address2: payload.purchaseOrder.header.shipTo.address.addressLine2,
+					city: payload.purchaseOrder.header.shipTo.address.city,
+					countryCode: payload.purchaseOrder.header.shipTo.address.countryCode,
+					postalCode: payload.purchaseOrder.header.shipTo.address.postalCode,
+					stateProv: payload.purchaseOrder.header.shipTo.address.stateProv
+				},
+				destinationContact: {
+					emailId: payload.purchaseOrder.header.shipTo.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.shipTo.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.shipTo.contact.firstName,
+					lastName: payload.purchaseOrder.header.shipTo.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.shipTo.contact.phoneNumber
+				},
+				lineItems: {
+					allowSubstitution: lineItem.allowSubstitution,
+					commodityClassCode: lineItem.commodityClassCode,
+					description: lineItem.description,
+					isCancelled: lineItem.isCancelled,
+					isClosed: lineItem.isClosed,
+					itemName: lineItem.itemName,
+					itemTin: lineItem.itemTin,
+					lineItemNumber: lineItem.lineItemNo,
+					monetaryValueCurrency: lineItem.monetaryValueCurrency,
+					monetaryValueUOM: lineItem.monetaryValueUOM,
+					orderSize: lineItem.orderSize,
+					orderSizeUOM: lineItem.orderSizeUOM,
+					productClassCode: lineItem.productClassCode,
+					protectionLevelCode: lineItem.protectionLevelCode,
+					totalMonetaryValue: lineItem.totalMonetaryValue,
+					unitMonetaryValue: lineItem.unitMonetaryValue
+				},
+				originAddress: {
+					address: payload.purchaseOrder.header.originDetails.address.addressLine1,
+					address2: payload.purchaseOrder.header.originDetails.address.addressLine2,
+					city: payload.purchaseOrder.header.originDetails.address.city,
+					countryCode: payload.purchaseOrder.header.originDetails.address.countryCode,
+					postalCode: payload.purchaseOrder.header.originDetails.address.postalCode,
+					stateProv: payload.purchaseOrder.header.originDetails.address.stateProv
+				},
+				originContact: {
+					emailId: payload.purchaseOrder.header.originDetails.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.originDetails.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.originDetails.contact.firstName,
+					lastName: payload.purchaseOrder.header.originDetails.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.originDetails.contact.phoneNumber
+				}
+			}),
+			originFacility: payload.purchaseOrder.header.originDetails.facility,
+			paymentMethod: payload.purchaseOrder.header.paymentMethod,
+			pickupEnd: vars.concatValues.pickupEnd,
+			pickupStart: vars.concatValues.pickupStart,
+			productClass: payload.purchaseOrder.header.productClass,
+			protectionLevel: payload.purchaseOrder.header.protectionLevel,
+			purchaseOrderKey: {
+				businessUnit: payload.purchaseOrder.header.businessUnit,
+				purchaseOrderNumber: payload.purchaseOrder.header.poNumber
+			},
+			requestedDeliveryDttm: vars.concatValues.requestedDeliveryDttm,
+			status: payload.purchaseOrder.header.status,
+			taxCharges: payload.purchaseOrder.header.taxCharges
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="create-po-consume" doc:id="aee083de-0bdf-4925-a5b6-76c960e00c69" config-ref="wsc-purchaseorder-manhattan" operation="${secure::wsc.purchaseorder-service.operation.create-purchaseorder}"/>
+		<ee:transform doc:name="response-body" doc:id="0561c2ee-50bb-4032-84e8-88e01ddbb829" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.createPurchaseOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="create-purchase-flow" doc:id="dcaeda66-786e-4297-953a-ac1d15763fa3" message="#[payload]" category="In the create purchase order flow"/>
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="030f352d-a8bd-4933-9c50-5cd11be2db3c" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="a942c7a1-125b-4d77-b3ef-6c5faf002021" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="3f6bf474-62f2-451c-89fa-975532e2c580" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="5ccf5865-ab15-4e00-a4b8-5f57ae4ae951" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="31316a04-6e25-4369-b174-6b59ad852ef4" message="Success" />
+	</sub-flow>
+	<sub-flow name="close-purchase-order-flow" doc:id="62378ce1-f37e-4885-963f-4f93f9a8ea0e" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="63928d27-0f83-44cd-94e2-372f713052f4" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-purchaseOrder-code" doc:id="452a6e13-5fe1-4937-9e3d-cd9fcacdf568" name="invalid-purchaseOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="65b1b66f-f5b6-4b88-a733-606197ffdad5" />
+		<ee:transform doc:name="puchaseorder-to-wsdl" doc:id="b0f4ebfa-a5fa-445a-84a1-3e9a797071cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#closePurchaseOrder: {
+		contextId: vars.contextID,
+		purchaseOrderKey: {
+			businessUnit: vars.businessUnit,
+			purchaseOrderNumber: vars.purchaseOrderNumber
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="${secure::wsc.purchaseorder-service.operation.close-purchaseorder}" doc:name="close-po-consume" doc:id="8e0320d5-18b4-4fbf-a690-404299132a4a" config-ref="wsc-purchaseorder-manhattan"/>
+		<ee:transform doc:name="response-body" doc:id="ec4ef69d-551e-4444-bb32-12ba6dc1ac3d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.closePurchaseOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="close-purchase-flow" doc:id="b8f8e04f-26a6-4dc1-ab28-4f32b7e4ce85" message="In the close purchase order flow" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="38fc1a30-78db-476d-8728-17bc63ac828c" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="9401036f-d2f2-4444-8dbe-0183d932c9e4" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="bc9b1733-3b41-4027-b822-2ef940973e48" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="095a80ce-fb93-482e-b212-8553367ca84f" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="b5e63d21-feab-4c23-848c-c565de710152" message="Success" />
+	</sub-flow>
+	<sub-flow name="cancel-purchase-order-flow" doc:id="75dbbc44-de46-4516-b582-bd7f74338b57" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="0f83bb72-8b78-480d-b203-20c8df52b38b" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-purchaseOrder-code" doc:id="e709d469-34bd-41bc-b93a-23c8cbf584af" name="invalid-purchaseOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="6a21bca2-f2c1-49dd-ad9a-7a0a2409bab6" />
+		<ee:transform doc:name="puchaseorder-to-wsdl" doc:id="48b8ee68-305c-44f2-8361-36c678bd4d91" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#cancelPurchaseOrder: {
+		contextId: vars.contextID,
+		purchaseOrderKey: {
+			businessUnit: vars.businessUnit,
+			purchaseOrderNumber: payload.purchaseOrder.header.poNumber
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="${secure::wsc.purchaseorder-service.operation.cancel-purchaseorder}" doc:name="cancel-po-consume" doc:id="c52459f3-03b8-43db-8978-34c79be1cf7d" config-ref="wsc-purchaseorder-manhattan"/>
+		<ee:transform doc:name="response-body" doc:id="326f2c79-9094-477b-a091-55db9f7893aa">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.cancelPurchaseOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="cancel-purchase-flow" doc:id="b12d9f4d-ef4d-412b-ad43-a6bc971f365e" message="In the cancel purchase order flow"/>
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="ca5f7272-39b0-4db0-95c2-01e8a8fcb1ce" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="08218461-1e46-4d32-8166-0182e211ffb5" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="c36781ed-6395-4ee9-aed5-fd9e3168385b" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="ff03e831-9af0-46c5-863b-93e36b742283" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="9d0c8607-1cac-4204-84d1-1ba297063444" message="Success" />
+	</sub-flow>
+	<sub-flow name="update-purchase-order-flow" doc:id="f0624c93-edc9-4afa-9f3e-9117ffb8895a" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="aeb75089-4f6c-47f7-a0ec-1c76b280258c" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-purchaseOrder-code" doc:id="ba590806-1684-465b-877c-da1eac9e9ed3" name="invalid-purchaseOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="d7ced0bb-9bbb-40e8-914d-b93788ee4514" />
+		<flow-ref doc:name="validation-purchaseOrder-flow Reference" doc:id="4a58489f-d0ed-4f60-a410-3f1f4b259413" name="validation-purchaseOrder"/>
+		<ee:transform doc:name="dataTime &amp; dataDate" doc:id="9c0ecd20-2615-46f7-a021-25ca07585ac5" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="dataTime" ><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.purchaseOrder.header.delivery.endTime,
+	dStartTime: payload.purchaseOrder.header.delivery.startTime,
+	pEndTime: payload.purchaseOrder.header.pickUp.endTime,
+	pStartTime: payload.purchaseOrder.header.pickUp.startTime,
+    deliveryDttm: payload.purchaseOrder.header.requestedDelivery.time
+	
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate" ><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndDate : payload.purchaseOrder.header.delivery.endDate,
+	dStartDate: payload.purchaseOrder.header.delivery.startDate,
+	pEndDate: payload.purchaseOrder.header.pickUp.endDate,
+	pStartDate: payload.purchaseOrder.header.pickUp.startDate,
+	deliveryDttm: payload.purchaseOrder.header.requestedDelivery.date	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="c7be1c74-2e71-4bb0-a755-6de6ff12708b" name="validate-time"/>
+		<flow-ref doc:name="validate-date" doc:id="e4348372-016a-4542-9bdd-ea8b9795e3ca" name="validate-date"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b9d77b71-16aa-4599-8c56-dba58dcf4a5f" message="#[payload]" category="check output payload"/>
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="57ef6f5d-578e-4410-9824-baa77cc47433" />
+		<ee:transform doc:name="puchaseorder-to-wsdl" doc:id="38a26c3c-5888-44ad-acda-a8284c89ba04">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#createPurchaseOrder: {
+		contextId: vars.contextID,
+		purchaseOrderData: {
+			billToFacility: payload.purchaseOrder.header.billTo.facility,
+			businessPartner: payload.purchaseOrder.header.businessPartner,
+			deliveryEnd: vars.concatValues.deliveryEnd,
+			deliveryStart: vars.concatValues.deliveryStart,
+			destinationFacility: payload.purchaseOrder.header.shipTo.facility,
+			grandTotal: payload.purchaseOrder.header.grandTotal,
+			isCancelled: payload.purchaseOrder.header.isCancelled,
+			(payload.purchaseOrder.lineItems map ( lineItem , indexOfLineItem ) -> {
+				billToAddress: {
+					address: payload.purchaseOrder.header.billTo.address.addressLine1,
+					address2: payload.purchaseOrder.header.billTo.address.addressLine2,
+					city: payload.purchaseOrder.header.billTo.address.city,
+					countryCode: payload.purchaseOrder.header.billTo.address.countryCode,
+					postalCode: payload.purchaseOrder.header.billTo.address.postalCode,
+					stateProv: payload.purchaseOrder.header.billTo.address.stateProv
+				},
+				billToContact: {
+					emailId: payload.purchaseOrder.header.billTo.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.billTo.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.billTo.contact.firstName,
+					lastName: payload.purchaseOrder.header.billTo.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.billTo.contact.phoneNumber
+				},
+				destinationAddress: {
+					address: payload.purchaseOrder.header.shipTo.address.addressLine1,
+					address2: payload.purchaseOrder.header.shipTo.address.addressLine2,
+					city: payload.purchaseOrder.header.shipTo.address.city,
+					countryCode: payload.purchaseOrder.header.shipTo.address.countryCode,
+					postalCode: payload.purchaseOrder.header.shipTo.address.postalCode,
+					stateProv: payload.purchaseOrder.header.shipTo.address.stateProv
+				},
+				destinationContact: {
+					emailId: payload.purchaseOrder.header.shipTo.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.shipTo.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.shipTo.contact.firstName,
+					lastName: payload.purchaseOrder.header.shipTo.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.shipTo.contact.phoneNumber
+				},
+				lineItems: {
+					allowSubstitution: lineItem.allowSubstitution,
+					commodityClassCode: lineItem.commodityClassCode,
+					description: lineItem.description,
+					isCancelled: lineItem.isCancelled,
+					isClosed: lineItem.isClosed,
+					itemName: lineItem.itemName,
+					itemTin: lineItem.itemTin,
+					lineItemNumber: lineItem.lineItemNo,
+					monetaryValueCurrency: lineItem.monetaryValueCurrency,
+					monetaryValueUOM: lineItem.monetaryValueUOM,
+					orderSize: lineItem.orderSize,
+					orderSizeUOM: lineItem.orderSizeUOM,
+					productClassCode: lineItem.productClassCode,
+					protectionLevelCode: lineItem.protectionLevelCode,
+					totalMonetaryValue: lineItem.totalMonetaryValue,
+					unitMonetaryValue: lineItem.unitMonetaryValue
+				},
+				originAddress: {
+					address: payload.purchaseOrder.header.originDetails.address.addressLine1,
+					address2: payload.purchaseOrder.header.originDetails.address.addressLine2,
+					city: payload.purchaseOrder.header.originDetails.address.city,
+					countryCode: payload.purchaseOrder.header.originDetails.address.countryCode,
+					postalCode: payload.purchaseOrder.header.originDetails.address.postalCode,
+					stateProv: payload.purchaseOrder.header.originDetails.address.stateProv
+				},
+				originContact: {
+					emailId: payload.purchaseOrder.header.originDetails.contact.emailId,
+					faxNumber: payload.purchaseOrder.header.originDetails.contact.faxNumber,
+					firstName: payload.purchaseOrder.header.originDetails.contact.firstName,
+					lastName: payload.purchaseOrder.header.originDetails.contact.lastName,
+					phoneNumber: payload.purchaseOrder.header.originDetails.contact.phoneNumber
+				}
+			}),
+			originFacility: payload.purchaseOrder.header.originDetails.facility,
+			paymentMethod: payload.purchaseOrder.header.paymentMethod,
+			pickupEnd: vars.concatValues.pickupEnd,
+			pickupStart: vars.concatValues.pickupStart,
+			productClass: payload.purchaseOrder.header.productClass,
+			protectionLevel: payload.purchaseOrder.header.protectionLevel,
+			purchaseOrderKey: {
+				businessUnit: payload.purchaseOrder.header.businessUnit,
+				purchaseOrderNumber: payload.purchaseOrder.header.poNumber
+			},
+			requestedDeliveryDttm: vars.concatValues.requestedDeliveryDttm,
+			status: payload.purchaseOrder.header.status,
+			taxCharges: payload.purchaseOrder.header.taxCharges
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="${secure::wsc.purchaseorder-service.operation.update-purchaseorder}" doc:name="update-po-consume" doc:id="2cfc9c58-35fa-40ed-812a-7f971b4917a3" config-ref="wsc-purchaseorder-manhattan"/>
+		<ee:transform doc:name="response-body" doc:id="556b9ee5-6001-423a-8100-21b40b664a20">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.updatePurchaseOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="update-purchase-flow" doc:id="57ccd527-5cdf-438a-afdc-2447ec33b3e3" message="In the update purchase order flow"/>
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="ad535e24-f706-4b71-86ba-a2cceed24736" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="a00fea8d-48ec-4789-9ce5-5e27df656f57" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="211527d4-78a2-4656-8947-1475a2a46067" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="49ec7110-65d6-4ffb-9e29-05baaccd946c" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="b5d59939-933e-42cb-9d6b-03d872da99bc" message="Success" />
+	</sub-flow>
+	<sub-flow name="validation-purchaseOrder" doc:id="9a4f124a-c69e-4cac-9da9-2f92ea7ec8ad">
+		<validation:is-true doc:name="Validate Purchase Order Number" doc:id="97bfe1cc-6ebb-4099-bbc2-ef4e745adabf" expression="#[vars.purchaseOrderNumber == payload.purchaseOrder.header.poNumber]" message="Purchase Order Number does not match poNumber" />
+	</sub-flow>
+	<sub-flow name="invalid-purchaseOrder-code" doc:id="95f14e14-23b9-4b59-9cec-3310d3093429" >
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::errorCodes.invalidPO') as Number]" doc:name="invalidCode" doc:id="c529e762-bb06-4504-b001-138f424be723" variableName="invalidCode" />
+	</sub-flow>
+</mule>

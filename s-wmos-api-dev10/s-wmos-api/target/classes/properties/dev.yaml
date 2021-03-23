@@ -1,0 +1,16 @@
+api:
+ id: "15844687"
+ domain:  "s-template-api-dev"  
+ 
+https:
+ frequency : "10000"
+ retry : "3"
+ timeout : "60000"
+ tls:
+  keyStorePassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  privateKeyPassword: "![3iPfGIf03SLrzsKVjzWG0cXcXAIg7PXn]"
+  filePath: "certificates/dev-keystore.jks"
+   
+
+
+template: "api-dev" 

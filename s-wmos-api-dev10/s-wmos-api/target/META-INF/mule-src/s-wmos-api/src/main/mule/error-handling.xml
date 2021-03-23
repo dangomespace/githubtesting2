@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
+	
+	<error-handler name="APIKIT_Error_Handler">
+                       <on-error-propagate type="APIKIT:BAD_REQUEST" enableNotifications="true" logException="true">
+			<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="e1ea094f-87aa-4116-83c7-74baa7dc3591" doc:name="Bad Request Error Message">
+                     <ee:message>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java 
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+
+</ee:variables>
+                </ee:transform>
+			<ee:transform doc:name="Set Payload" doc:id="b4deb8d0-f133-4ae6-8595-c077183b6a22" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 400,
+	errorMessage: 'Bad Request ' ++ error.description,
+    transactionId: vars.transactionId,
+    errorLayer: "System API"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+            
+</on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND" enableNotifications="true" logException="true">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="5de41abd-62a7-440e-a1af-018425169502" doc:name="Resource Not Found Error Message">
+                    <ee:message>
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 404,
+	errorMessage: 'Not Found - Contact your IT Support Team'
+}]]></ee:set-payload>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+</ee:variables>
+                </ee:transform>
+            
+</on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="4f2e78e2-d82a-474a-a6ce-70a1ec1dad62" doc:name="Method Not Found Error Message">
+                   <ee:message>
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 405,
+	errorMessage: 'Method Not Allowed - Contact your IT Support Team'
+}]]></ee:set-payload>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+</ee:variables>
+                </ee:transform>
+            
+</on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="a1b4bdd9-d10d-49e8-a7c9-1afe656dd087" doc:name="Not Acceptable Error Message">
+                   <ee:message>
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 406,
+	errorMessage: 'Not Acceptable - Contact your IT Support Team'
+}]]></ee:set-payload>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+</ee:variables>
+                </ee:transform>
+            
+</on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="d5fb801a-5d37-4de0-9399-73fcbdee0589" doc:name="Unsupported Media Type Error Message">
+                    <ee:message>
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 415,
+	errorMessage: 'Only JSON Request Supported - Contact your IT Support Team'
+}]]></ee:set-payload>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+</ee:variables>
+                </ee:transform>
+            
+</on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="d9db411f-3e80-4b44-a598-1ffdea51664d" doc:name="Method Not Implemented Error Message">
+                   <ee:message>
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode: 501,
+	errorMessage: 'Not Implemented - Contact your IT Support Team'
+}]]></ee:set-payload>
+
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                        <ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="requestId" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+                    
+</ee:variables>
+                </ee:transform>
+            
+</on-error-propagate>
+	
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1b99449b-fcda-4a40-bf5a-6ebc7738948b" type="HTTP:BAD_REQUEST">
+			<ee:transform doc:name="Bad Request Error Message" doc:id="0572bf53-4b29-424c-b890-a7019252a4a1" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+					<ee:set-variable variableName="transactionId"><![CDATA[%dw 2.0
+output application/java
+---
+
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+					<ee:set-variable variableName="requestId"><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog"><![CDATA[%dw 2.0
+output application/json
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="set Payload" doc:id="05c9c1ec-c49a-47b2-bf3c-85ab0a453769">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "errorCode": error.exception.errorMessage.typedValue.errorCode,
+  "errorMessage":  error.exception.errorMessage.typedValue.errorMessage,
+  "transactionId": error.exception.errorMessage.typedValue.transactionId,
+  "errorLayer": error.exception.errorMessage.typedValue.errorLayer
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="91a3676b-b1bd-4b46-9b63-55d9e4bafc22" type="ANY">
+			<ee:transform doc:name="Error Payload" doc:id="04569565-cb62-4822-8ec9-fd699306c6f1">
+				<ee:message>  
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorCode:500,
+	errorMessage: 'Internal Server Error - Contact your IT Support Team'
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[500]]></ee:set-variable>
+					<ee:set-variable variableName="transactionId"><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.transactionId?)
+vars.transactionId
+else
+attributes.headers['X-TRANSACTION-ID']]]></ee:set-variable>
+					<ee:set-variable variableName="requestId"><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.requestId?)
+vars.requestId
+else
+java!java::util::UUID::randomUUID() as String replace /-/ with '']]></ee:set-variable>
+					<ee:set-variable variableName="msgLog"><![CDATA[%dw 2.0
+output application/java
+---
+{
+    Description: error.description,
+	Type: error.errorType,
+	Cause: error.cause,
+	Message:error.errorMessage,
+	ChildErrors:error.childErrors,
+	errorMessage: error.exception.message
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-continue>	
+        </error-handler>	
+</mule>

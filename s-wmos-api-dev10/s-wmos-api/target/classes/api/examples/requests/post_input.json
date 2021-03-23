@@ -1,0 +1,12 @@
+{
+  "Field1": "some values",
+  "Field2": "some values",
+  "list1":
+    [ { "array field1" : "value",
+        "array field2" : "value"    
+      },
+      { "array field1" : "value",
+        "array field2" : "value"    
+      }
+    ]
+}

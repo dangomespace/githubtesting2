@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.cbo.services.wmos.manh.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="PurchaseOrderService" targetNamespace="http://service.cbo.services.wmos.manh.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.cbo.services.wmos.manh.com/" elementFormDefault="unqualified" targetNamespace="http://service.cbo.services.wmos.manh.com/" version="1.0">
+
+  <xs:element name="ValidationResult" type="tns:validationResult"/>
+
+  <xs:element name="cancelPurchaseOrder" type="tns:cancelPurchaseOrder"/>
+
+  <xs:element name="cancelPurchaseOrderResponse" type="tns:cancelPurchaseOrderResponse"/>
+
+  <xs:element name="closePurchaseOrder" type="tns:closePurchaseOrder"/>
+
+  <xs:element name="closePurchaseOrderResponse" type="tns:closePurchaseOrderResponse"/>
+
+  <xs:element name="createPurchaseOrder" type="tns:createPurchaseOrder"/>
+
+  <xs:element name="createPurchaseOrderResponse" type="tns:createPurchaseOrderResponse"/>
+
+  <xs:element name="updatePurchaseOrder" type="tns:updatePurchaseOrder"/>
+
+  <xs:element name="updatePurchaseOrderResponse" type="tns:updatePurchaseOrderResponse"/>
+
+  <xs:complexType name="updatePurchaseOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderData" type="tns:updateablePurchaseOrderData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateablePurchaseOrderData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="billToAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="billToContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="billToFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="businessPartner" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="destinationContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element name="grandTotal" type="xs:double"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="lineItems" nillable="true" type="tns:lineItemData"/>
+      <xs:element minOccurs="0" name="originAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="originContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="paymentMethod" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderKey" type="tns:purchaseOrderKey"/>
+      <xs:element minOccurs="0" name="requestedDeliveryDttm" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+      <xs:element name="taxCharges" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addressData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="address" type="xs:string"/>
+      <xs:element minOccurs="0" name="address2" type="xs:string"/>
+      <xs:element minOccurs="0" name="city" type="xs:string"/>
+      <xs:element minOccurs="0" name="countryCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="postalCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="stateProv" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="contactData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="emailId" type="xs:string"/>
+      <xs:element minOccurs="0" name="faxNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="firstName" type="xs:string"/>
+      <xs:element minOccurs="0" name="lastName" type="xs:string"/>
+      <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="lineItemData">
+    <xs:sequence>
+      <xs:element name="allowSubstitution" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="commodityClassCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element name="isClosed" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="itemName" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemTin" type="xs:string"/>
+      <xs:element minOccurs="0" name="lineItemNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="monetaryValueCurrency" type="xs:string"/>
+      <xs:element minOccurs="0" name="monetaryValueUOM" type="xs:string"/>
+      <xs:element name="orderSize" type="xs:double"/>
+      <xs:element minOccurs="0" name="orderSizeUOM" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClassCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevelCode" type="xs:string"/>
+      <xs:element name="totalMonetaryValue" type="xs:double"/>
+      <xs:element name="unitMonetaryValue" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="purchaseOrderKey">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderNumber" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updatePurchaseOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Value" type="xs:anyType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="ValidationMessage" type="tns:validationMessage"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="objectId" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cancelPurchaseOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderKey" type="tns:purchaseOrderKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cancelPurchaseOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="closePurchaseOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderKey" type="tns:purchaseOrderKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="closePurchaseOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createPurchaseOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderData" type="tns:purchaseOrderData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="purchaseOrderData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="billToAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="billToContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="billToFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="businessPartner" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="destinationContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element name="grandTotal" type="xs:double"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="lineItems" nillable="true" type="tns:lineItemData"/>
+      <xs:element minOccurs="0" name="originAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="originContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="paymentMethod" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element minOccurs="0" name="purchaseOrderKey" type="tns:purchaseOrderKey"/>
+      <xs:element minOccurs="0" name="requestedDeliveryDttm" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+      <xs:element name="taxCharges" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createPurchaseOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="createPurchaseOrderResponse">
+    <wsdl:part element="tns:createPurchaseOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="closePurchaseOrder">
+    <wsdl:part element="tns:closePurchaseOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePurchaseOrderResponse">
+    <wsdl:part element="tns:updatePurchaseOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="closePurchaseOrderResponse">
+    <wsdl:part element="tns:closePurchaseOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updatePurchaseOrder">
+    <wsdl:part element="tns:updatePurchaseOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="cancelPurchaseOrder">
+    <wsdl:part element="tns:cancelPurchaseOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createPurchaseOrder">
+    <wsdl:part element="tns:createPurchaseOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="cancelPurchaseOrderResponse">
+    <wsdl:part element="tns:cancelPurchaseOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SOAPurchaseOrderServiceWrapper">
+    <wsdl:operation name="updatePurchaseOrder">
+      <wsdl:input message="tns:updatePurchaseOrder" name="updatePurchaseOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:updatePurchaseOrderResponse" name="updatePurchaseOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cancelPurchaseOrder">
+      <wsdl:input message="tns:cancelPurchaseOrder" name="cancelPurchaseOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:cancelPurchaseOrderResponse" name="cancelPurchaseOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="closePurchaseOrder">
+      <wsdl:input message="tns:closePurchaseOrder" name="closePurchaseOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:closePurchaseOrderResponse" name="closePurchaseOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createPurchaseOrder">
+      <wsdl:input message="tns:createPurchaseOrder" name="createPurchaseOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:createPurchaseOrderResponse" name="createPurchaseOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PurchaseOrderServiceSoapBinding" type="tns:SOAPurchaseOrderServiceWrapper">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="updatePurchaseOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updatePurchaseOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updatePurchaseOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cancelPurchaseOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="cancelPurchaseOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="cancelPurchaseOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="closePurchaseOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="closePurchaseOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="closePurchaseOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createPurchaseOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createPurchaseOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createPurchaseOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PurchaseOrderService">
+    <wsdl:port binding="tns:PurchaseOrderServiceSoapBinding" name="SOAPurchaseOrderServiceWrapperPort">
+      <soap:address location="https://mn17-t06-http.wl.wincanton-local.co.uk:36001/services/PurchaseOrderService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

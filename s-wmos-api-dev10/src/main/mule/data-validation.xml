@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="validate-time" doc:id="9b5d1976-93e4-4819-83b1-283e3ded1f04" >
+		<ee:transform doc:name="pluck dataTime" doc:id="991def3c-4c6d-4b7c-9962-cd459070f8c7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.dataTime pluck $]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d9d5a8f3-f6f1-44be-8022-1d44cd599d6b" message="#[payload]" category="take values from this" />
+		<foreach doc:name="For Each Time" doc:id="8a0c572f-b51c-4d5d-bdfe-8d0c40771a15" collection="#[payload]" >
+			<validation:is-time doc:name="validate-time" doc:id="b885d0ac-77f8-4857-b3b1-1222a7ad9936" time="#[payload]" locale="US" pattern="HH:mm:ss" message="#['Incorrect time format for ' ++ payload ++ '. Please provide time in HH:MM:SS format.']" />
+		</foreach>
+	</sub-flow>
+	<sub-flow name="validate-date" doc:id="57bcba7f-fcc5-425e-bc8a-0df069ce4c7b" >
+		<ee:transform doc:name="pluck dataDate" doc:id="fc072515-83eb-4043-80bc-f254fc167cde" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.dataDate pluck $]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a3110fc2-020c-4bba-8ed7-6d79d4a6c18e" message="#[payload]" category="take values from this" />
+		<foreach doc:name="For Each Date" doc:id="3489f491-5570-481f-b1a2-40c2c29c23cf" collection="#[payload]" >
+			<validation:is-time doc:name="validate-date" doc:id="79c86711-7112-4e08-b429-02796e860352" time="#[payload]" locale="US" pattern="DD/MM/YYYY" message="#['Incorrect date format for ' ++ payload ++ '. Please provide date in DD/MM/YYYY format.']" />
+		</foreach>
+	</sub-flow>
+</mule>

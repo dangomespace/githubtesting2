@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="23c7f30c-c723-4821-8bfb-fe7d3b4cedcf" >
+		<wsc:connection wsdlLocation="https://cloudfulfilment-test.wincanton.co.uk/services/DistributionService?wsdl" service="DistributionService" port="SOADistributionServiceWrapperPort" address="https://cloudfulfilment-test.wincanton.co.uk/services/DistributionService" />
+	</wsc:config>
+	<sub-flow name="create-distribution-order-flow" doc:id="0c255030-e800-4ac7-bfa2-4b6532e1cbba" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="1a493b58-970d-4f9e-8083-72bad7acf8cd" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-distributionOrder-code" doc:id="664e2ef5-4607-47b3-9358-211f50be0293" name="invalid-distributionOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="16ad7620-9b17-4b36-a58f-009ea3b59796" />
+		<ee:transform doc:name="dataTime &amp; dataDate" doc:id="d6713dd8-b211-48a8-a710-ba42ce22dc03">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dataTime"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.order.header.shipmentDetails.delivery.endTime,
+	dStartTime: payload.order.header.shipmentDetails.delivery.startTime,
+	pEndTime: payload.order.header.shipmentDetails.pickUp.endTime,
+	pStartTime: payload.order.header.shipmentDetails.pickUp.startTime
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.order.header.shipmentDetails.delivery.endDate,
+	dStartTime: payload.order.header.shipmentDetails.delivery.startDate,
+	pEndTime: payload.order.header.shipmentDetails.pickUp.endDate,
+	pStartTime: payload.order.header.shipmentDetails.pickUp.startDate
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="3b445663-8e58-4064-b483-85c537ffda4f" name="validate-time" />
+		<flow-ref doc:name="validate-date" doc:id="d205ec1a-e6ad-461a-9484-e1999a611a90" name="validate-date" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="1143af0b-ea53-423f-a5e2-79e6837bb6c7" />
+		<ee:transform doc:name="concat-values" doc:id="5f76d149-ef6d-4b1a-b87a-7924594645fd">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="concatValues"><![CDATA[%dw 2.0
+output application/json
+fun nonEmptyCheck(text) = if (text == null or text == "") false else true
+---
+{
+	deliveryEnd: if (nonEmptyCheck(payload.order.header.shipmentDetails.delivery.endDate) and nonEmptyCheck(payload.order.header.shipmentDetails.delivery.endTime)) (payload.order.header.shipmentDetails.delivery.endDate ++ ", " ++ payload.order.header.shipmentDetails.delivery.endTime) else "", 
+	deliveryStart: if (nonEmptyCheck(payload.order.header.shipmentDetails.delivery.startDate) and nonEmptyCheck(payload.order.header.shipmentDetails.delivery.startTime)) (payload.order.header.shipmentDetails.delivery.startDate ++ ", " ++ payload.order.header.shipmentDetails.delivery.startTime) else "",
+	pickUpEnd: if (nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.endDate) and nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.endTime)) (payload.order.header.shipmentDetails.pickUp.endDate ++ ", " ++ payload.order.header.shipmentDetails.pickUp.endTime) else "",
+	pickUpStart: if (nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.startDate) and nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.startTime)) (payload.order.header.shipmentDetails.pickUp.startDate ++ ", " ++ payload.order.header.shipmentDetails.pickUp.startTime) else ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="distibutionorder-to-wsdl" doc:id="ff578d3e-60d7-409f-a001-f32da2e1b45c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#createDistributionOrder: {
+		contextId: vars.contextID,
+		distributionOrderData: {
+			billingMethod: payload.order.header.billingMethod,
+			deliveryEnd: vars.concatValues.deliveryEnd,
+			deliveryStart: vars.concatValues.deliveryStart,
+			destinationAddress: {
+				address: payload.order.header.destinationDetails.address.addressLine1,
+				address2: payload.order.header.destinationDetails.address.addressLine2,
+				city: payload.order.header.destinationDetails.address.city,
+				countryCode: payload.order.header.destinationDetails.address.countryCode,
+				postalCode: payload.order.header.destinationDetails.address.postalCode,
+				stateProv: payload.order.header.destinationDetails.address.stateProv
+			},
+			destinationContact: {
+				emailId: payload.order.header.destinationDetails.contact.emailId,
+				faxNumber: payload.order.header.destinationDetails.contact.faxNumber,
+				firstName: payload.order.header.destinationDetails.contact.firstName,
+				lastName: payload.order.header.destinationDetails.contact.lastName,
+				phoneNumber: payload.order.header.destinationDetails.contact.phoneNumber
+			},
+			destinationFacility: payload.order.header.destinationDetails.facility,
+			distributionOrderKey: {
+				businessUnit: payload.order.header.businessUnit,
+				distributionOrderNumber: payload.order.header.orderNumber
+			},
+			isCancelled: payload.order.header.isCancelled,
+			isHazmat: payload.order.header.shipmentDetails.Classification.isHazmat,
+			isPerishable: payload.order.header.shipmentDetails.Classification.isPerishable,
+			(payload.order.lineItems map ( lineItem , indexOfLineItem ) -> {
+				lineItems: {
+					allowSubstitution: lineItem.allowSubstitution,
+					commodityClassCode: lineItem.commodityClassCode,
+					description: lineItem.description,
+					isCancelled: lineItem.isCancelled,
+					isClosed: lineItem.isClosed,
+					itemName: lineItem.itemName,
+					itemTin: lineItem.itemTin,
+					lineItemNumber: lineItem.lineItemNo,
+					monetaryValueCurrency: lineItem.monetaryValueCurrency,
+					monetaryValueUOM: lineItem.monetaryValueUOM,
+					orderSize: lineItem.orderSize,
+					orderSizeUOM: lineItem.orderSizeUOM,
+					productClassCode: lineItem.productClassCode,
+					protectionLevelCode: lineItem.protectionLevelCode,
+					totalMonetaryValue: lineItem.totalMonetaryValue,
+					unitMonetaryValue: lineItem.unitMonetaryValue
+				}
+			}),
+			orderType: payload.order.header.orderType,
+			originAddress: {
+				address: payload.order.header.originDetails.address.addressLine1,
+				address2: payload.order.header.originDetails.address.addressLine2,
+				city: payload.order.header.originDetails.address.city,
+				countryCode: payload.order.header.originDetails.address.countryCode,
+				postalCode: payload.order.header.originDetails.address.postalCode,
+				stateProv: payload.order.header.originDetails.address.stateProv
+			},
+			originContact: {
+				emailId: payload.order.header.originDetails.contact.emailId,
+				faxNumber: payload.order.header.originDetails.contact.faxNumber,
+				firstName: payload.order.header.originDetails.contact.firstName,
+				lastName: payload.order.header.originDetails.contact.lastName,
+				phoneNumber: payload.order.header.originDetails.contact.phoneNumber
+			},
+			originFacility: payload.order.header.originDetails.facility,
+			pickupEnd: vars.concatValues.pickupEnd,
+			pickupStart: vars.concatValues.pickupStart,
+			productClass: payload.order.header.shipmentDetails.Classification.productClass,
+			protectionLevel: payload.order.header.shipmentDetails.Classification.protectionLevel,
+			status: payload.order.header.status,
+			transportationResponsibilityCode: payload.order.header.shipmentDetails.Classification.transportationResponsibilityCode
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="create-do-consume" doc:id="ee65f6b7-4997-492d-acb9-1dd1a271a039" config-ref="wsc-distributionorder-manhattan" operation="${secure::wsc.distributionorder-service.operation.create-distribution}"/>
+		<ee:transform doc:name="response-body" doc:id="e62959ff-8fdc-464e-8e89-ebdce9820dbe">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.createDistributionOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="create-do-flow" doc:id="48662225-5e5e-44b8-96cf-579fa614dccd" message="In the create distribution order flow"/>
+		<logger level="INFO" doc:name="wmos-validation" doc:id="465fcc59-aedc-423e-ab92-bd8d18c5dcc5" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="def4d7d1-d617-4885-9c3f-1b11e04f0a62" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="cde35e3a-c881-44d6-a0c2-36f5c503134b" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="50636f77-58ae-42e5-9dc3-377f9567199e" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="3d0239f2-f508-4415-b7fa-5c20fbdb7ae7" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="4187a0dc-4997-4e0d-bc41-0896e115b8ab" message="Success" />
+	</sub-flow>
+	<sub-flow name="cancel-distribution-order-flow" doc:id="6a232cd5-e154-4bb5-a2c1-d355814447ce" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="ed90ff82-05fd-4062-8737-ae51644164c1" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-distributionOrder-code" doc:id="b254b764-744e-4705-a8f0-3a81c4638576" name="invalid-distributionOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="cf107b59-b112-4ffb-9353-475e837ebf1e" />
+		<ee:transform doc:name="distibutionorder-to-wsdl" doc:id="54a6d37f-ac99-499a-afc9-53533b224bed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#cancelDistributionOrder: {
+		contextId: vars.contextID,
+		distributionOrderKey: {
+			businessUnit: vars.businessUnit,
+			distributionOrderNumber: vars.distributionOrderNumber
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="cancel-do-consume" doc:id="8584d5db-f7df-439a-84ff-4f53c13b4889" config-ref="wsc-distributionorder-manhattan" operation="${secure::wsc.distributionorder-service.operation.delete-distribution}"/>
+		<ee:transform doc:name="response-body" doc:id="3e8009d8-fb6e-4115-bc29-08a5396ea811">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.cancelDistributionOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="cancel-do-flow" doc:id="b1c2911a-e631-4bf1-8098-f5b726701b84" message="In the cancel distribution order flow"/>
+		<logger level="INFO" doc:name="create-purchase-flow" doc:id="b4c91287-151d-44c2-b763-5ffda7a728bc" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="wmos-validation" doc:id="d3a0e42d-31a3-485c-bf8b-b05ae366a4d1" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="120d2d8b-9f16-4517-ae69-37a0fb999638" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="f3a52fc3-a6b5-43e2-ae9a-810dd3827276" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="eaae4160-f979-4b3c-8a10-aba9eae29561" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="4880f201-5a02-47e2-b317-6537525daecf" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="09840ab7-15e9-40df-80ab-f12e34fd510c" message="Success" />
+	</sub-flow>
+	<sub-flow name="get-distribution-orders-flow" doc:id="48766917-ce7a-4cbf-aab1-3a2d16423b32" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="555dd95c-0f43-4f7d-b1f1-3f94a278d18a" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-distributionOrder-code" doc:id="99388aae-9067-444b-9d25-a21b8a09eccf" name="invalid-distributionOrder-code" />
+		<ee:transform doc:name="distibutionorder-to-wsdl" doc:id="ace6c8da-adbb-4f7d-95a8-21222bc96d71" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#getDistributionOrder: {
+		contextId: vars.contextID,
+		distributionOrderKey: {
+			distributionOrderNumber: vars.distributionOrderNumber,
+			businessUnit: vars.businessUnit
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6ed04b66-bb01-48c1-a620-82b2c54259ff" message="#[payload]"/>
+		<try doc:name="Try" doc:id="589478ec-71f5-4b0b-a91c-91d75bd3dc74" >
+			<wsc:consume operation="${secure::wsc.distributionorder-service.operation.get-distribution}" doc:name="get-do-consume" doc:id="b7e559f2-b2e9-4f9d-a94d-78709ed4df87" config-ref="wsc-distributionorder-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="2899493e-b3c7-4921-8692-5ee8dcb33a03" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="947526b0-f0d1-49c6-ba8f-212fefd27385" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="response-body" doc:id="5fb458a7-7a64-464d-9431-8b9fcdca192b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.getDistributionOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bd2ee2e9-fb62-42ed-8a6e-0b3dac6a7e17" message="#[payload]" category="after response body"/>
+		<choice doc:name="Choice" doc:id="80fb1e77-ade6-4cfa-83d2-454b8bc178b1">
+			<when expression="#[payload == null]">
+				<logger level="INFO" doc:name="Logger" doc:id="10bbb8ff-881f-4f62-a92b-4b94463e7ee5" message="In the if choice is NULL" />
+				<set-payload value="#[{}]" doc:name="Set Payload" doc:id="49eeb75d-dfb0-4e17-ab7e-6fd2cadd3fdf" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="fea6907e-b016-44e1-840e-b524acbab786" message="in the default choice " />
+				<ee:transform doc:name="return DO" doc:id="b843f104-2288-4789-959c-14831be7e10b">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="read-do-flow" doc:id="fb1aad9d-ac95-4fad-af01-dbfe7777e830" message="In the read distribution orders flow"/>
+		<logger level="INFO" doc:name="create-purchase-flow" doc:id="b9086e7d-0c4d-4f55-9297-a5431bb416c1" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="cef72275-68e1-40fc-bcba-ade5a14d7d6d" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="successful " doc:id="1f5d14a4-28e8-4912-9dec-25070947255f" message="Success" />
+	</sub-flow>
+	<sub-flow name="update-distribution-order-flow" doc:id="fe3cac67-4f92-45a9-94e4-63741f8b953f" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="41f61eec-5fd0-47c7-8cf6-b6fbc153fd65" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-distributionOrder-code" doc:id="5998e825-1bce-4c23-93e2-24d3b6d7d3e8" name="invalid-distributionOrder-code" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="a1db4aa2-ae6e-490a-870a-5c663d5b57aa" />
+		<ee:transform doc:name="dataTime &amp; dataDate" doc:id="2f371dd7-8a69-4df7-b08f-8b8aea0ebdba">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="dataTime"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndTime: payload.order.header.shipmentDetails.delivery.endTime,
+	dStartTime: payload.order.header.shipmentDetails.delivery.startTime,
+	pEndTime: payload.order.header.shipmentDetails.pickUp.endTime,
+	pStartTime: payload.order.header.shipmentDetails.pickUp.startTime
+}]]></ee:set-variable>
+				<ee:set-variable variableName="dataDate"><![CDATA[%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+	dEndDate : payload.order.header.shipmentDetails.delivery.endDate,
+	dStartDate: payload.order.header.shipmentDetails.delivery.startDate,
+	pEndDate: payload.order.header.shipmentDetails.pickUp.endDate,
+	pStartDate: payload.order.header.shipmentDetails.pickUp.startDate
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="validate-time" doc:id="2d94692d-fca2-47bf-97e9-9d31630f4a36" name="validate-time" />
+		<flow-ref doc:name="validate-date" doc:id="a0be4fb9-558a-40d1-95a0-0eb742c7d203" name="validate-date" />
+		<set-payload value="#[vars.payloadRequest]" doc:name="payload-request-body" doc:id="778fe8af-7798-4604-9fad-27d1d92c4b54" />
+		<flow-ref doc:name="validation-distributionorder-flow Reference" doc:id="2d6a46f3-e83e-4b13-8007-6d4aeb6be203" name="validation-distributionorder" />
+		<ee:transform doc:name="concat-values" doc:id="5bbf429b-1330-4e4e-a298-740095c89562">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="concatValues"><![CDATA[%dw 2.0
+output application/json
+fun nonEmptyCheck(text) = if (text == null or text == "") false else true
+---
+{
+	deliveryEnd: if (nonEmptyCheck(payload.order.header.shipmentDetails.delivery.endDate) and nonEmptyCheck(payload.order.header.shipmentDetails.delivery.endTime)) (payload.order.header.shipmentDetails.delivery.endDate ++ ", " ++ payload.order.header.shipmentDetails.delivery.endTime) else "", 
+	deliveryStart: if (nonEmptyCheck(payload.order.header.shipmentDetails.delivery.startDate) and nonEmptyCheck(payload.order.header.shipmentDetails.delivery.startTime)) (payload.order.header.shipmentDetails.delivery.startDate ++ ", " ++ payload.order.header.shipmentDetails.delivery.startTime) else "",
+	pickUpEnd: if (nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.endDate) and nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.endTime)) (payload.order.header.shipmentDetails.pickUp.endDate ++ ", " ++ payload.order.header.shipmentDetails.pickUp.endTime) else "",
+	pickUpStart: if (nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.startDate) and nonEmptyCheck(payload.order.header.shipmentDetails.pickUp.startTime)) (payload.order.header.shipmentDetails.pickUp.startDate ++ ", " ++ payload.order.header.shipmentDetails.pickUp.startTime) else ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="distibutionorder-to-wsdl" doc:id="1307a546-52af-4636-993c-5da07adf9c93" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#updateDistributionOrder: {
+		contextId: vars.contextID,
+		distributionOrderData: {
+			billingMethod: payload.order.header.billingMethod,
+			deliveryEnd: vars.concatValues.deliveryEnd,
+			deliveryStart: vars.concatValues.deliveryStart,
+			destinationAddress: {
+				address: payload.order.header.destinationDetails.address.addressLine1,
+				address2: payload.order.header.destinationDetails.address.addressLine2,
+				city: payload.order.header.destinationDetails.address.city,
+				countryCode: payload.order.header.destinationDetails.address.countryCode,
+				postalCode: payload.order.header.destinationDetails.address.postalCode,
+				stateProv: payload.order.header.destinationDetails.address.stateProv
+			},
+			destinationContact: {
+				emailId: payload.order.header.destinationDetails.contact.emailId,
+				faxNumber: payload.order.header.destinationDetails.contact.faxNumber,
+				firstName: payload.order.header.destinationDetails.contact.firstName,
+				lastName: payload.order.header.destinationDetails.contact.lastName,
+				phoneNumber: payload.order.header.destinationDetails.contact.phoneNumber
+			},
+			destinationFacility: payload.order.header.destinationDetails.facility,
+			distributionOrderKey: {
+				businessUnit: payload.order.header.businessUnit,
+				distributionOrderNumber: payload.order.header.orderNumber
+			},
+			isCancelled: payload.order.header.isCancelled,
+			isHazmat: payload.order.header.shipmentDetails.Classification.isHazmat,
+			isPerishable: payload.order.header.shipmentDetails.Classification.isPerishable,
+			(payload.order.lineItems map ( lineItem , indexOfLineItem ) -> {
+				lineItems: {
+					allowSubstitution: lineItem.allowSubstitution,
+					commodityClassCode: lineItem.commodityClassCode,
+					description: lineItem.description,
+					isCancelled: lineItem.isCancelled,
+					isClosed: lineItem.isClosed,
+					itemName: lineItem.itemName,
+					itemTin: lineItem.itemTin,
+					lineItemNumber: lineItem.lineItemNo,
+					monetaryValueCurrency: lineItem.monetaryValueCurrency,
+					monetaryValueUOM: lineItem.monetaryValueUOM,
+					orderSize: lineItem.orderSize,
+					orderSizeUOM: lineItem.orderSizeUOM,
+					productClassCode: lineItem.productClassCode,
+					protectionLevelCode: lineItem.protectionLevelCode,
+					totalMonetaryValue: lineItem.totalMonetaryValue,
+					unitMonetaryValue: lineItem.unitMonetaryValue
+				}
+			}),
+			orderType: payload.order.header.orderType,
+			originAddress: {
+				address: payload.order.header.originDetails.address.addressLine1,
+				address2: payload.order.header.originDetails.address.addressLine2,
+				city: payload.order.header.originDetails.address.city,
+				countryCode: payload.order.header.originDetails.address.countryCode,
+				postalCode: payload.order.header.originDetails.address.postalCode,
+				stateProv: payload.order.header.originDetails.address.stateProv
+			},
+			originContact: {
+				emailId: payload.order.header.originDetails.contact.emailId,
+				faxNumber: payload.order.header.originDetails.contact.faxNumber,
+				firstName: payload.order.header.originDetails.contact.firstName,
+				lastName: payload.order.header.originDetails.contact.lastName,
+				phoneNumber: payload.order.header.originDetails.contact.phoneNumber
+			},
+			originFacility: payload.order.header.originDetails.facility,
+			pickupEnd: vars.concatValues.pickupEnd,
+			pickupStart: vars.concatValues.pickupStart,
+			productClass: payload.order.header.shipmentDetails.Classification.productClass,
+			protectionLevel: payload.order.header.shipmentDetails.Classification.protectionLevel,
+			status: payload.order.header.status,
+			transportationResponsibilityCode: payload.order.header.shipmentDetails.Classification.transportationResponsibilityCode
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="${secure::wsc.distributionorder-service.operation.update-distribution}" doc:name="update-do-consume" doc:id="c5fd66b0-f7ef-4c58-91f3-4ba90b0412a4" config-ref="wsc-distributionorder-manhattan"/>
+		<ee:transform doc:name="response-body" doc:id="9b720503-5044-47d0-bef7-7d61ea5da310">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.updateDistributionOrderResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="update-do-flow" doc:id="550ca69e-e4af-4475-9287-803d4e958131" message="In the update distribution orders flow"/>
+		<logger level="INFO" doc:name="create-purchase-flow" doc:id="30c05ec5-a200-4ffa-aa4c-bf8553b8f711" message="In the create purchase order flow" />
+		<logger level="INFO" doc:name="wmos-validation" doc:id="9b356ec7-5d2c-4aea-b054-00f7dec179e6" message="wmosValidation" />
+		<set-variable value="#[payload]" doc:name="wmosResponse" doc:id="3553eb55-8bd5-48e9-aa29-0138fe36c42e" variableName="wmosResponse" />
+		<flow-ref doc:name="response-validation-flow Reference" doc:id="ebec71eb-8bbe-4765-bf1d-9f8c2c07dbb2" name="response-validation-flow" />
+		<logger level="INFO" doc:name="variable-payload-set" doc:id="74d453d1-3d33-4817-b345-09a50e98a862" message="Variable has been set to payload" />
+		<logger level="INFO" doc:name="out-of-response-validation" doc:id="f39400a6-2b4c-481c-8295-4bad7a491d6b" message="Out of the response validation flow" />
+		<logger level="INFO" doc:name="successful " doc:id="13171080-f67c-458b-8b48-a745e9dfe82a" message="Success" />
+	</sub-flow>
+	<sub-flow name="list-distribution-orders-flow" doc:id="19a1bb1f-250f-4b8b-ad49-f5cf3ebd0ab3" >
+		<logger level="INFO" doc:name="got-contextID" doc:id="911ad630-cb7a-4231-91d7-6b34d18beb72" message="#[vars.contextID]" category="Got contextID" />
+		<flow-ref doc:name="invalid-distributionOrder-code" doc:id="bcd3e893-c2b4-4577-8ffa-57ba0ed35fc4" name="invalid-distributionOrder-code" />
+		<ee:transform doc:name="distibutionorder-to-wsdl" doc:id="cd021729-f1ac-4640-aef2-120b3e789b6c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://service.cbo.services.wmos.manh.com/
+---
+{
+	ns0#listDistributionOrders: {
+		contextId: vars.contextID,
+		distributionOrderEnquiryData: {
+			businessUnit: vars.businessUnit default "",
+			doNumber: vars.doNumber,
+			fetchCount: vars.limit default 500
+			//pageIndex: vars.pageIndex
+			
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<try doc:name="Try" doc:id="78fe9cfc-0aac-42ca-8c3b-77f45d719093" >
+			<wsc:consume operation="${secure::wsc.distributionorder-service.operation.list-distribution}" doc:name="list-do-consume" doc:id="7cda0d1a-19de-471f-ac06-ec973b4f5ec8" config-ref="wsc-distributionorder-manhattan" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue WSC:SOAP_FAULT" doc:id="50d6c6e9-777a-4292-910f-aa8b22c83209" type="WSC:SOAP_FAULT" >
+					<logger level="INFO" doc:name="Logger" doc:id="1b54aadd-ffc4-40f4-a0dd-1a9b0d97b114" message="In on-error-continue" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="response-body" doc:id="957933ab-ee6f-447e-9ec4-c3235fc2e8d1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.body.listDistributionOrders.*return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="doKeys" doc:id="ea341f03-761d-4a52-a64f-b00f061a418c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var pageSize = vars.pageSize
+
+var pageIndex = vars.pageIndex
+
+var doKeys = payload.body.listDistributionOrders.*return  map $ as Number default []
+
+var keys = doKeys orderBy $
+
+var keysSize = sizeOf(keys)
+
+var startPosition = ((pageIndex-1)*pageSize)
+
+var calcEndPosition = (pageIndex*pageSize)-1
+
+var endPosition = if (calcEndPosition > keysSize - 1) keysSize - 1 else calcEndPosition
+
+--- 
+productKeys: keys[startPosition to endPosition] default []
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="maxPageCount"><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+
+var pageSize = vars.pageSize
+
+var doKeys = payload.body.listDistributionOrders.*return  map $ as Number default []
+
+var keys = doKeys orderBy $
+
+var keysSize = sizeOf(keys)
+
+var maxPageCount = keysSize/pageSize
+
+var decimal = isEmpty(substringAfter(maxPageCount , "."))
+
+---
+if (decimal) round(maxPageCount) else (substringBefore(maxPageCount , ".") +1)
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="cb57f746-c22b-42ff-a060-30f792ec4b6f">
+			<when expression="#[payload == null]">
+				<logger level="INFO" doc:name="Logger" doc:id="f6b0a780-9b94-48f9-8726-10f8596d5a9d" message="In the if choice is NULL" />
+				<set-payload value="#[{}]" doc:name="Set Payload" doc:id="907e5c9d-6674-41df-806d-87f881480ad0" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="1bc665fc-a131-4a39-a3c4-c548920908b4" message="#[vars.productKeyOnly]" category="in the default choice " />
+				<ee:transform doc:name="return orderKeyOnly" doc:id="1898b897-5cb5-4e3e-a70f-73412e70de50">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+orderKeyOnly: [payload]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Choice" doc:id="f1d35ad4-9abb-4e3c-876e-75aa2e34d355">
+					<when expression='#[vars.orderKeyOnly == "X"]'>
+						<logger level="INFO" doc:name="Logger" doc:id="35934c2b-fc4f-4624-abef-83828eeecca5" message="#[payload]" category="Product keys returned" />
+					</when>
+					<otherwise>
+						<logger level="INFO" doc:name="Logger" doc:id="7184934f-9d58-48c5-a063-d4004a7d0ce5" message="Default choice - read getItem" />
+						<set-variable value="#[[]]" doc:name="listDoDetails" doc:id="4522f5b5-214f-4d27-bdce-c674cec5aa48" variableName="listDoDetails" />
+						<foreach doc:name="For Each orderKeys" doc:id="bb5a11ea-2b5c-48ad-bac3-84dedac30291" collection="#[payload.orderKeyOnly]">
+							<logger level="INFO" doc:name="Logger" doc:id="6a2de15a-bf57-4786-8dea-4ac01dfaed79" message="#[payload]" category="For each product key" />
+							<set-variable value="#[payload]" doc:name="orderKeyOnly" doc:id="012b402e-fa4c-446a-822b-4b041f08ecf8" variableName="distributionOrderNumber" />
+							<flow-ref doc:name="getDo - flow Reference" doc:id="34af0aa7-000c-4351-945f-bcd055b6165c" name="get-distribution-orders-flow" />
+							<set-variable value="#[payload]" doc:name="listDoOutput" doc:id="a54e38ae-b1dd-424f-8a2d-271f2b7502ce" variableName="listDoOutput" />
+							<logger level="INFO" doc:name="Logger" doc:id="2d982807-3dfa-4969-aabd-aadba36eb192" message="#[payload]" category="getDo payload output" />
+							<ee:transform doc:name="listDoDetails" doc:id="26f97e2b-1fad-406f-b90f-718a2f671f7c">
+								<ee:message />
+								<ee:variables>
+									<ee:set-variable variableName="itemListDetails"><![CDATA[%dw 2.0
+output application/json
+---
+
+//gather all data
+flatten(vars.*listDoDetails ++ [vars.listDoOutput ])]]></ee:set-variable>
+								</ee:variables>
+							</ee:transform>
+							<logger level="INFO" doc:name="Logger" doc:id="d02bee32-acac-4d79-a154-4a9b7ed86d3a" message="#[payload]" category="Concatenated payload" />
+						</foreach>
+						<logger level="INFO" doc:name="Logger" doc:id="1ddfa288-d36c-41c8-aac1-5c355680a36e" message="#[vars.distributionOrderListDetails]" category="Final do details" />
+						<ee:transform doc:name="list-info" doc:id="42671a76-56b3-4621-9cc2-e295b1cfed47" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "listInfo": {
+    "recordCount": sizeOf(vars.listDoDetails),
+    "currPage": vars.pageIndex,
+    "maxPageCount": vars.maxPageCount
+  },
+  "distribution orders": vars.listDoDetails
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Final output" doc:id="1b9317a8-51e0-4bbe-8431-0a3f40dbe646" message="#[payload]" category="Final output"/>
+		<logger level="INFO" doc:name="successful " doc:id="08bd5f19-5569-43ef-a54e-5b3770b78db0" message="Success" />
+	</sub-flow>
+	<sub-flow name="validation-distributionorder" doc:id="5525c3c0-29f6-47ba-8c06-e5d983acf19c" >
+		<validation:is-true doc:name="Validate Distribution Order Number" doc:id="d111aa77-dac5-44cb-ab39-9a25bb180ab5" expression="#[vars.distributionOrderNumber == payload.order.header.orderNumber]" message="Distribution Order Number does not match Order Number"/>
+	</sub-flow>
+	<sub-flow name="invalid-distributionOrder-code" doc:id="51400a13-4874-454d-8491-4dfd52e6aec2" >
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::errorCodes.invalidDO') as Number]" doc:name="invalidCode" doc:id="efbfd86d-c630-4671-81a0-c22b4f1eebd2" variableName="invalidCode" />
+	</sub-flow>
+</mule>

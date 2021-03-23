@@ -1,0 +1,32 @@
+{
+  "headers": {
+    "content-type": "application/json",
+    "client_id": "1d44ce44367b4f46910aa2433bcca039",
+    "client_secret": "kjihi56b1212vghc35b34kb45k",
+    "x-transaction-id": "DFFV45ERCEC",
+    "user-agent": "PostmanRuntime/7.26.10",
+    "accept": "*/*",
+    "cache-control": "no-cache",
+    "postman-token": "7584f4e2-058c-4687-abf2-69a4ea3917e5",
+    "host": "localhost:8092",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "273"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "https",
+  "queryParams": {},
+  "requestUri": "/api/mawmos/epc/v1/authentication/validate/contextID",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": "/authentication/validate/contextID",
+  "listenerPath": "/api/mawmos/epc/v1/*",
+  "relativePath": "/api/mawmos/epc/v1/authentication/validate/contextID",
+  "localAddress": "/127.0.0.1:8092",
+  "uriParams": {},
+  "rawRequestUri": "/api/mawmos/epc/v1/authentication/validate/contextID",
+  "rawRequestPath": "/api/mawmos/epc/v1/authentication/validate/contextID",
+  "remoteAddress": "/127.0.0.1:62190",
+  "requestPath": "/api/mawmos/epc/v1/authentication/validate/contextID"
+}

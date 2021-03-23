@@ -1,0 +1,10 @@
+{
+  "statusCode": 404,
+  "statusType": "Resource does not exist",
+  "statusMessage": "The server has not found anything matching the Request-URI",
+  "statusDetails": [ {"server": "X",
+                      "error": "Get resource cannot be found on server X"}, 
+                      {"resource": "GET",
+                      "error" : "No matching request-URI" }],
+  "transactionId": "3F2504E0-4F89-11D3-9A0C-0305E82C3301"
+}

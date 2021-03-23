@@ -1,0 +1,77 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "http://wincanton.co.uk/productList.json",
+	"type": "object",
+	"title": "Product List",
+	"description": "The Product List root schema comprises the entire JSON document.",
+	"default": {},
+	"properties": {
+		"listInfo": {
+			"$id": "#/properties/listInfo",
+			"type": "object",
+			"title": "List Information",
+			"description": "List Information",
+			"default": {},
+			"properties": {
+				"recordCount": {
+					"$id": "#/properties/listInfo/properties/recordCount",
+					"type": "integer",
+					"title": "Total Record Count",
+					"description": "Total Record Count",
+					"default": 0
+				},
+				"currPage": {
+					"$id": "#/properties/listInfo/properties/currPage",
+					"type": "integer",
+					"title": "Current Page",
+					"description": "Current Page",
+					"default": 0
+				},
+				"maxPageCount": {
+					"$id": "#/properties/listInfo/properties/maxPageCount",
+					"type": "integer",
+					"title": "Total Page Count",
+					"description": "Total Page Count",
+					"default": 0
+				}
+			},
+			"additionalProperties": true
+		},
+		"products": {
+			"$id": "#/properties/products",
+			"type": "array",
+			"title": "List of Products",
+			"description": "List of Products",
+			"default": [],
+			"additionalItems": true,
+			"items": {
+				"$id": "#/properties/products/items",
+				"anyOf": [{
+					"$id": "#/properties/products/items/anyOf/0",
+					"type": "object",
+					"title": "The first anyOf schema",
+					"description": "An explanation about the purpose of this instance.",
+					"default": {},
+					"properties": {
+						"productIdentifier": {
+							"$id": "#/properties/products/items/anyOf/0/properties/productIdentifier",
+							"type": "string",
+							"title": "Product Identifier",
+							"description": "Product Identifier",
+							"default": ""
+						},
+						"businessUnit": {
+							"$id": "#/properties/products/items/anyOf/0/properties/businessUnit",
+							"type": "string",
+							"title": "Business Unit",
+							"description": "Business Unit for the product",
+							"default": ""
+						}
+					},
+					"additionalProperties": true
+				}]
+			}
+		}
+	},
+	"additionalProperties": true
+}

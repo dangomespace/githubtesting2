@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="response-validation-flow" doc:id="c6e96345-581b-444f-aafe-82eaf88477ef" >
+		<ee:transform doc:name="filter-response" doc:id="a9cfa950-f967-4035-8787-8c4426a90a6f">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="filterError" ><![CDATA[%dw 2.0
+output application/json
+var response = payload.*ValidationMessage default []
+
+var filterResponse = response filter ((item, index) -> item.validationType == "error"
+		or item.validationType == 'warning' 
+)  
+---
+filterResponse default []
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b4da8434-12b3-4520-9d28-de9bed6a0126" message="#[vars.filterError]" category="filterError"/>
+		<ee:transform doc:name="filter-error" doc:id="995ec77c-436d-46f9-b03c-c949942722ac" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="errorArraySize" ><![CDATA[%dw 2.0
+output application/json
+---
+sizeOf(vars.filterError)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="6b844e91-1094-4dc5-8f0a-bdc78a340fdb" >
+			<when expression='#[vars.errorArraySize &gt; 0]'>
+				<flow-ref doc:name="set-httpStatus" doc:id="550d0688-2649-439a-8d6b-a6ce09b54d3d" name="set-httpStatus" />
+				<ee:transform doc:name="write-response" doc:id="a773a501-c740-45a8-8bf3-42b3e87bbf21">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var response = payload
+---
+write(response , 'application/json')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<logger level="INFO" doc:name="filters errors" doc:id="6dbc11f8-f250-46d8-8583-475c46ee55f7" message="#[vars.errorArraySize]" category="filters errors" />
+				<logger level="INFO" doc:name="choice-error" doc:id="3f298fa3-ea63-49bb-b8fc-9a3b709cd7be" message="Error on choice " />
+				<raise-error doc:name="WMOS:MANHATTAN_ERROR" doc:id="e802fcab-5af7-4fd2-a6d7-24cb87d98336" type="WMOS:MANHATTAN_ERROR" description="#[write(vars.filterError , 'application/json')]"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="validation-flow" doc:id="6c5397e0-afaa-4c60-951d-cae5def121d9" message="In the response validation flow" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="No errors" doc:id="6336d378-60d2-4bc2-92d5-fc4cc3d10d96" message="No errors" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="aed20bee-09e9-488f-9b92-bc19ff372a74" >
+				<ee:transform doc:name="print-error" doc:id="0edd03c9-49fa-457f-82cd-d09f36f6473f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+error]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="d5a623b8-0961-4ae1-b0be-bb14ae6acfa0" message="#[payload]" category="Error Message"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<sub-flow name="set-httpStatus" doc:id="4f4bd91b-5767-413b-b19b-8cb54eb3bf61" >
+		<ee:transform doc:name="httpStatus" doc:id="5039ed3a-cbc4-41aa-830a-3654812cf4b4" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/json
+var filterErrorCodes = vars.filterError.code map $ as Number default []
+var vHttpStatusCheck = filterErrorCodes contains (vars.invalidCode as Number)
+
+---
+if (vHttpStatusCheck)
+204
+else
+409]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3c33998a-7b34-4f37-ba95-3b715b084101" message="#[vars.httpStatus]" category="check httpstatus"/>
+	</sub-flow>
+</mule>

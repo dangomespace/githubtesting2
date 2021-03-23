@@ -1,0 +1,344 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.cbo.services.wmos.manh.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="DistributionService" targetNamespace="http://service.cbo.services.wmos.manh.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.cbo.services.wmos.manh.com/" elementFormDefault="unqualified" targetNamespace="http://service.cbo.services.wmos.manh.com/" version="1.0">
+
+  <xs:element name="ValidationResult" type="tns:validationResult"/>
+
+  <xs:element name="cancelDistributionOrder" type="tns:cancelDistributionOrder"/>
+
+  <xs:element name="cancelDistributionOrderResponse" type="tns:cancelDistributionOrderResponse"/>
+
+  <xs:element name="createDistributionOrder" type="tns:createDistributionOrder"/>
+
+  <xs:element name="createDistributionOrderResponse" type="tns:createDistributionOrderResponse"/>
+
+  <xs:element name="getDistributionOrder" type="tns:getDistributionOrder"/>
+
+  <xs:element name="getDistributionOrderResponse" type="tns:getDistributionOrderResponse"/>
+
+  <xs:element name="listDistributionOrders" type="tns:listDistributionOrders"/>
+
+  <xs:element name="listDistributionOrdersResponse" type="tns:listDistributionOrdersResponse"/>
+
+  <xs:element name="updateDistributionOrder" type="tns:updateDistributionOrder"/>
+
+  <xs:element name="updateDistributionOrderResponse" type="tns:updateDistributionOrderResponse"/>
+
+  <xs:complexType name="getDistributionOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderKey" type="tns:distributionOrderKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="distributionOrderKey">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderNumber" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getDistributionOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:distributionOrderData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="distributionOrderData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="billingMethod" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="destinationContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderKey" type="tns:distributionOrderKey"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element name="isHazmat" type="xs:boolean"/>
+      <xs:element name="isPerishable" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="lineItems" nillable="true" type="tns:lineItemData"/>
+      <xs:element minOccurs="0" name="orderType" type="xs:string"/>
+      <xs:element minOccurs="0" name="originAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="originContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+      <xs:element minOccurs="0" name="transportationResponsibilityCode" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addressData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="address" type="xs:string"/>
+      <xs:element minOccurs="0" name="address2" type="xs:string"/>
+      <xs:element minOccurs="0" name="city" type="xs:string"/>
+      <xs:element minOccurs="0" name="countryCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="postalCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="stateProv" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="contactData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="emailId" type="xs:string"/>
+      <xs:element minOccurs="0" name="faxNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="firstName" type="xs:string"/>
+      <xs:element minOccurs="0" name="lastName" type="xs:string"/>
+      <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="lineItemData">
+    <xs:sequence>
+      <xs:element name="allowSubstitution" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="commodityClassCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element name="isClosed" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="itemName" type="xs:string"/>
+      <xs:element minOccurs="0" name="itemTin" type="xs:string"/>
+      <xs:element minOccurs="0" name="lineItemNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="monetaryValueCurrency" type="xs:string"/>
+      <xs:element minOccurs="0" name="monetaryValueUOM" type="xs:string"/>
+      <xs:element name="orderSize" type="xs:double"/>
+      <xs:element minOccurs="0" name="orderSizeUOM" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClassCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevelCode" type="xs:string"/>
+      <xs:element name="totalMonetaryValue" type="xs:double"/>
+      <xs:element name="unitMonetaryValue" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listDistributionOrders">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderEnquiryData" type="tns:distributionOrderEnquiryData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="distributionOrderEnquiryData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="businessUnit" type="xs:string"/>
+      <xs:element minOccurs="0" name="doNumber" type="xs:string"/>
+      <xs:element name="fetchCount" type="xs:int"/>
+      <xs:element name="pageIndex" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="listDistributionOrdersResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:distributionOrderKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createDistributionOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderData" type="tns:distributionOrderData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="createDistributionOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Value" type="xs:anyType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="ValidationMessage" type="tns:validationMessage"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="validationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="objectId" type="xs:string"/>
+      <xs:element minOccurs="0" name="objectType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateDistributionOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderData" type="tns:updateableDOData"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateableDOData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="billingMethod" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="deliveryStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="destinationAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="destinationContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="destinationFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderKey" type="tns:distributionOrderKey"/>
+      <xs:element name="isCancelled" type="xs:boolean"/>
+      <xs:element name="isHazmat" type="xs:boolean"/>
+      <xs:element name="isPerishable" type="xs:boolean"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="lineItems" nillable="true" type="tns:lineItemData"/>
+      <xs:element minOccurs="0" name="orderType" type="xs:string"/>
+      <xs:element minOccurs="0" name="originAddress" type="tns:addressData"/>
+      <xs:element minOccurs="0" name="originContact" type="tns:contactData"/>
+      <xs:element minOccurs="0" name="originFacility" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupEnd" type="xs:string"/>
+      <xs:element minOccurs="0" name="pickupStart" type="xs:string"/>
+      <xs:element minOccurs="0" name="productClass" type="xs:string"/>
+      <xs:element minOccurs="0" name="protectionLevel" type="xs:string"/>
+      <xs:element minOccurs="0" name="status" type="xs:string"/>
+      <xs:element minOccurs="0" name="transportationResponsibilityCode" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="updateDistributionOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cancelDistributionOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="contextId" type="xs:string"/>
+      <xs:element minOccurs="0" name="distributionOrderKey" type="tns:distributionOrderKey"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cancelDistributionOrderResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:validationResult"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getDistributionOrder">
+    <wsdl:part element="tns:getDistributionOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateDistributionOrderResponse">
+    <wsdl:part element="tns:updateDistributionOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createDistributionOrder">
+    <wsdl:part element="tns:createDistributionOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateDistributionOrder">
+    <wsdl:part element="tns:updateDistributionOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getDistributionOrderResponse">
+    <wsdl:part element="tns:getDistributionOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="cancelDistributionOrder">
+    <wsdl:part element="tns:cancelDistributionOrder" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createDistributionOrderResponse">
+    <wsdl:part element="tns:createDistributionOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listDistributionOrders">
+    <wsdl:part element="tns:listDistributionOrders" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listDistributionOrdersResponse">
+    <wsdl:part element="tns:listDistributionOrdersResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="cancelDistributionOrderResponse">
+    <wsdl:part element="tns:cancelDistributionOrderResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SOADistributionServiceWrapper">
+    <wsdl:operation name="getDistributionOrder">
+      <wsdl:input message="tns:getDistributionOrder" name="getDistributionOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:getDistributionOrderResponse" name="getDistributionOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listDistributionOrders">
+      <wsdl:input message="tns:listDistributionOrders" name="listDistributionOrders">
+    </wsdl:input>
+      <wsdl:output message="tns:listDistributionOrdersResponse" name="listDistributionOrdersResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createDistributionOrder">
+      <wsdl:input message="tns:createDistributionOrder" name="createDistributionOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:createDistributionOrderResponse" name="createDistributionOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateDistributionOrder">
+      <wsdl:input message="tns:updateDistributionOrder" name="updateDistributionOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:updateDistributionOrderResponse" name="updateDistributionOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cancelDistributionOrder">
+      <wsdl:input message="tns:cancelDistributionOrder" name="cancelDistributionOrder">
+    </wsdl:input>
+      <wsdl:output message="tns:cancelDistributionOrderResponse" name="cancelDistributionOrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DistributionServiceSoapBinding" type="tns:SOADistributionServiceWrapper">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getDistributionOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getDistributionOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getDistributionOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listDistributionOrders">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="listDistributionOrders">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listDistributionOrdersResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createDistributionOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createDistributionOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createDistributionOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateDistributionOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateDistributionOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateDistributionOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cancelDistributionOrder">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="cancelDistributionOrder">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="cancelDistributionOrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DistributionService">
+    <wsdl:port binding="tns:DistributionServiceSoapBinding" name="SOADistributionServiceWrapperPort">
+      <soap:address location="https://mn17-t06-http.wl.wincanton-local.co.uk:36001/services/DistributionService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

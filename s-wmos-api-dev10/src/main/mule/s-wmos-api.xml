@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <flow name="s-wmos-api-main">
+        <http:listener path="${https.listener.path}" config-ref="s-wmos-api-httpListenerConfig">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[output application/java
+---
+{
+	"httpStatus" : vars.httpStatus,
+	"X-TRANSACTION-ID" : vars.transactionId
+	
+}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[%dw 2.0
+output application/json
+
+var businessResponse = if (error.errorType.namespace[0 to 3] == 'WMOS' 
+                                              or error.errorType.namespace[0 to 2] == 'WSC'
+                                              or error.errorType.namespace[0 to 9] == 'VALIDATION'
+                                              or error.errorType.namespace[0 to 3] == 'AUTH'
+) true else false
+
+var wmosResponse = if (error.errorType.namespace[0 to 3] == 'WMOS' 
+                                              or error.errorType.namespace[0 to 2] == 'WSC'
+) true else false
+
+
+---
+{
+"status":  "FAILURE",
+"errors" : [
+if  (businessResponse) 
+  {
+    error: {
+             errorType: (error.errorType.namespace ++ ":") ++ error.errorType.identifier,
+             errorCategory: "B",
+             errorDescription: vars.msgLog.Description,
+             errorText: if (wmosResponse ) "An error has occurred in Manhattan Associates WMOS" else error.detailedDescription,
+             errorWmos: vars.errorManhattan default []
+       }
+  }
+else 
+  {
+    error: {
+             errorType: (error.errorType.namespace ++ ":") ++ error.errorType.identifier,
+             errorCategory: "T",
+             errorDescription: "Your request has not been processed due to a System Fault. Please contact IT Support for further help.",
+             errorText: error.detailedDescription,
+             errorWmos: vars.errorManhattan default []
+       }
+  }
+  ]}]]]></http:body>
+                <http:headers><![CDATA[#[output application/java
+---
+{
+	"httpStatus" : vars.httpStatus,
+	"X-TRANSACTION-ID" : vars.transactionId
+}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="s-wmos-api-config" />
+        <error-handler ref="APIKIT_Error_Handler" />
+    </flow>
+    <flow name="s-wmos-api-console">
+        <http:listener path="/console/*" config-ref="s-wmos-api-httpListenerConfig">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="s-wmos-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\inbound\purchaseOrder\(purchaseOrderNumber)\close:application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="287b7525-732d-4d68-9383-e066318aa8eb" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="5895b42c-2e1f-4a65-821a-cd6c1634c103">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="purchaseOrderNumber"><![CDATA[attributes.uriParams.'purchaseOrderNumber']]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="33646a2c-1171-4395-b375-20cff46fcf5e" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="4049ec67-3210-4f41-810e-4327fa9c833b" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="77d25855-05ba-4460-974e-14b79af2328b">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="428455b3-ddc2-44f9-bf4e-0ebba49a4229" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="f191b8e0-fe12-48f4-b945-f2b06e297943" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="close-purchase-order-flow Reference" doc:id="4585f950-083a-4178-b0c4-bffb4391325c" name="close-purchase-order-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Purchase Order " ++ (vars.purchaseOrderNumber default "") ++ " was closed successfully for Business Unit " ++ vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\inbound\asn\(asnNumber):application\json:s-wmos-api-config" doc:id="027406bf-afbc-419b-afb3-30b81117a372">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="3f15123a-6932-42a1-ae75-b4bd097f4b87" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="148cfa93-c31b-4921-abcf-9096d3f447d8">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="asnNumber"><![CDATA[attributes.uriParams.'asnNumber']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="045b72a8-8597-49d1-9eb7-591d75139572" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="eab3b9d1-add5-44b0-acff-219e960a9c35" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="f9a8ed04-386c-4181-83c1-3204a5200cc2">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="e9dbfc2f-2919-439a-85cb-a025b999c70e" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="a82160c9-fa8f-4401-b511-62542c4c69ac" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="update-asn-flow Reference" doc:id="a7d246dd-9fa0-4171-adb3-eb175041d649" name="update-asn-flow" />
+        <ee:transform doc:name="response" doc:id="64e8e896-6949-4dd0-b2bc-ab5d1ed666f7">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "ASN " ++ (vars.asnNumber default "") ++ " has been updated successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="80715762-11ce-4376-9430-0e9f00fcf86b" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="1bec12c4-fcbc-4b07-a587-4c210f02e83b">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="distributionOrderNumber"><![CDATA[attributes.uriParams.'distributionOrderNumber']]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="1cd9d831-7112-4e13-9e23-2112707dcae7" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-logger" doc:id="15b67b51-e9c9-4506-9b43-9c894bb62219" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="8d13fd64-c0b7-4913-b7fc-5148b22996b8">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="6cafa12c-5f80-4eca-94fe-92575e95376b" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="d283e0a2-ef83-4e44-9c83-c5554260876c" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="update-distribution-order-flow Reference" doc:id="9f1c0eae-ca65-4ccf-b15e-f6beb6c79776" name="update-distribution-order-flow" />
+        <ee:transform doc:name="response" doc:id="dce2855f-c610-41d7-a501-7aceb1bff648">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Distribution Order " ++ (vars.distributionOrderNumber default "") ++ " was updated successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\masterdata\product\(productIdentifier):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="b3a10afe-991d-48e3-8ed2-5cef0dd90f9f" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="79c1e52b-f361-47d5-a54b-3ec24f853305">
+            <ee:variables>
+                <ee:set-variable variableName="productIdentifier"><![CDATA[attributes.uriParams.'productIdentifier']]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="bf6d8556-6da9-404e-aa59-11a7ff076556" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="a41c77b9-5453-43f7-9a22-9ff905a87271" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="f3461d83-e2ff-4a3f-a928-4ed7aab7ab6d">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="e5812233-19ab-482d-b856-8d89801e5a9c" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="e06d0753-724f-41a4-8e2e-73487e01197d" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="update-item-flow Reference" doc:id="e2e4c068-c7fc-4552-945b-d3efb427346e" name="update-item-flow" />
+        <ee:transform doc:name="response" doc:id="7f1c96fd-b13b-4da6-901f-99c26180fa58" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The product " ++ (vars.productIdentifier default "") ++ " was updated successfully for the Business Unit " ++ vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="db494b22-e763-4352-b8e5-78b4e361e810" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="06b7cc84-f1f9-4bee-9bb5-da74fd91351e">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="purchaseOrderNumber"><![CDATA[attributes.uriParams.'purchaseOrderNumber']]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="6071362a-6cdf-463c-b310-265f0f8a77ec" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="2a890c06-b711-4475-a90a-ad685eb9d5c7" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="e24cbe00-b529-42b7-a511-64e839e1b751">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="91473dca-3a04-4a71-b797-2ca7faca53b7" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="8c612d20-f1fc-4da1-903d-8550822f7912" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="update-purchase-order-flow Reference" doc:id="64ec3069-53c2-421b-a0b9-560a0c508a00" name="update-purchase-order-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Purchase Order " ++ (vars.purchaseOrderNumber default "") ++ " was updated successfully for the Business Unit " ++ vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\outbound\distributionOrders\(distributionOrderNumber):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="9b51231e-5148-44f1-bc0e-0f664da26c01" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="b706f70c-28d3-49b7-a1e5-cf7428f8addf">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="distributionOrderNumber"><![CDATA[attributes.uriParams.'distributionOrderNumber']]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="eb5b64d2-dff1-41a4-8744-de2b8a068669" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="f200ccbb-c4ab-46b8-80be-dd53e7ff6558" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="ca18d7ce-8341-42ac-a6ef-d57bca501f98">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="ca4b20e8-c09e-4849-9e24-56f580430b07" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="422f05c8-b29b-4fea-8bed-1a2c65ff9982" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="cancel-distribution-order-flow Reference" doc:id="843c25c2-d316-4542-b1e7-6108f941a4e4" name="cancel-distribution-order-flow" />
+        <ee:transform doc:name="response" doc:id="588a6f15-aa82-4c59-a515-8de38d6c059b">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Distribution Order " ++ (vars.distributionOrderNumber default "") ++ " was cancelled successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\masterdata\product\(productIdentifier):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="246dcb84-75f3-40a2-b8a2-26669ed72f23" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="b083c7fc-e975-4b61-a18f-ec23a6c885b2">
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+                <ee:set-variable variableName="productIdentifier"><![CDATA[attributes.uriParams.'productIdentifier']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="3de34cd2-6bde-4db6-ac70-e18c83052c62" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="290ab879-d265-4d8b-ad9f-54add5f2d3b2" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="4fb7749f-22ac-4366-9b3f-d0e521b6c4bf">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="fcc41c3f-aaf0-401b-9816-97e84d3c3e9f" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="eec86626-6302-4d77-9928-dc44e7ff6bcb" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="delete-item-flow Reference" doc:id="16a24d86-7834-480d-a5aa-473af7a3dd5a" name="delete-item-flow" />
+        <ee:transform doc:name="response" doc:id="05ef3bb7-5d7f-4222-89ab-6cf233d765fc">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The product " ++ (vars.productIdentifier default "") ++ " was cancelled successfully for the Business Unit " ++ vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="0aa2f3c9-3103-41dd-8097-b46bc3139c58" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="0f99e77d-c44e-4129-b4a0-9048d700c7db">
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+                <ee:set-variable variableName="purchaseOrderNumber"><![CDATA[attributes.uriParams.'purchaseOrderNumber']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="a10f8328-e23d-4ab2-b822-1db8985d67a5" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="f4acc884-8a21-4497-97bb-b0cfe92f9754" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="7549124c-a860-4f7e-8aa0-24fe6a52a969">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="ce8b2ad4-0452-479b-9893-16accab19fa7" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="3cd27084-ce42-43b3-b024-5eb7b6fe5461" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="cancel-purchase-order-flow Reference" doc:id="a4679cb3-c8e8-4741-af07-3abc7efa5642" name="cancel-purchase-order-flow" />
+        <ee:transform doc:name="response" doc:id="1a3847d5-f4cf-4d39-ac51-a737fc967100" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Purchase Order " ++ (vars.purchaseOrderNumber default "") ++ " was cancelled successfully for Business Unit " ++ vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\outbound\distributionOrders:s-wmos-api-config" doc:id="a1640e3b-1cfb-4587-858f-ab75c9b52593">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="f52157d2-5f66-4222-8ca4-9810eb4ff5c1" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="a528c6f6-611f-4ceb-83ee-79ba751e8082">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="pageSize"><![CDATA[attributes.queryParams.'pageSize']]></ee:set-variable>
+                <ee:set-variable variableName="pageNumber"><![CDATA[attributes.queryParams.'pageNumber']]></ee:set-variable>
+                <ee:set-variable variableName="doNumber"><![CDATA[attributes.queryParams.'doNumber']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="orderKeyOnly"><![CDATA[attributes.queryParams.orderKeyOnly]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="7aa63fe4-a204-4ccf-b888-c501e8236318" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="c0abf5fa-7b58-40cf-8e07-06f73720ae36">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="c3dfd8ee-502b-457e-aae0-d3ba899138bc" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="1e69a99f-1699-4e45-8a94-8d24129f3e3b" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="list-distribution-orders-flow Reference" doc:id="2ccb52a4-f907-4ce8-a54b-ed7516b4d222" name="list-distribution-orders-flow" />
+        <ee:transform doc:name="response" doc:id="c29c8f97-06bd-40f1-80c9-52251bc7a044" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\inbound\asn\(asnNumber)\lpnReceived:s-wmos-api-config" doc:id="d0175903-9ce6-4dd9-ad84-607f9ff76490">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="35750776-0694-470b-ade3-ba488a694841" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="d86d3e34-efaa-4b74-bbf0-a707220b562a">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="asnNumber"><![CDATA[attributes.uriParams.'asnNumber']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="707cb495-1339-4615-9b38-a7360e9c3746" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="96b34f78-4254-4945-9c67-e73f8b3234f8">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="712164ff-1ba1-4560-bd0e-0efdafd858d0" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="726cf116-4d03-4ad5-883b-535f3af1d011" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="get-lpnreceived-flow Reference" doc:id="05793ec1-745f-445b-b160-1be572ef936c" name="get-lpnreceived-flow" />
+        <ee:transform doc:name="response" doc:id="d60f5463-85a4-44ab-a799-8ec5c0afb63d" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\masterdata\product:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="329d0567-bf8e-4c37-87c8-f5da30385655" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="20d823d5-8335-4524-a947-33b48248104c">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="businessPartner"><![CDATA[attributes.queryParams.'businessPartner' default ""]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="productKeyOnly"><![CDATA[attributes.queryParams.productKeyOnly]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+                <ee:set-variable variableName="limit"><![CDATA[attributes.queryParams.'limit']]></ee:set-variable>
+                <ee:set-variable variableName="pageIndex"><![CDATA[attributes.queryParams.'pageIndex']]></ee:set-variable>
+                <ee:set-variable variableName="pageSize"><![CDATA[attributes.queryParams.'pageSize']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="22b54e3c-63df-4a17-aceb-19628c585768" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="ac112231-f740-46bb-a902-397cb67523fe">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="dc042578-e655-4567-85d0-5fad0d927774" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="2760458c-5056-4d46-8417-cb25c85b5695" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="list-item-flow Reference" doc:id="75b82388-fe50-4967-9b7b-0ea3f0195378" name="list-item-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\inbound\asn\(asnNumber)\quantityReceived:s-wmos-api-config" doc:id="a28bdb27-b73d-4db2-a58e-cbb0ca8bf5c0">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="a0500fa7-2988-4259-ad2d-010ea923dc67" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="5f676cc1-bf6a-4ccc-8ee5-52fec3f0246d">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="asnNumber"><![CDATA[attributes.uriParams.'asnNumber']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="c8dd0794-0a5e-4214-bd31-2b1cfe5898c1" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="53d4a12d-e7c7-4fac-abbe-62933bcfb535">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="a67f9cc2-2b51-4a45-9791-45b007f0faa2" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="36579b90-5d77-4a48-887b-7815bc40b005" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="get-quantityreceived-flow Reference" doc:id="ec9f436d-715f-4e77-b112-a2f4186105bd" name="get-quantityreceived-flow" />
+        <ee:transform doc:name="response" doc:id="485ab704-ce6e-4443-8867-a91ae16cecf0" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\outbound\distributionOrders\(distributionOrderNumber):s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="3abf972d-735a-42dd-a6d8-97bab3f8460a" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="b53d1dd8-d1b5-401c-b3b0-35f638daf251">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="distributionOrderNumber"><![CDATA[attributes.uriParams.'distributionOrderNumber']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="b8abd97b-72dc-4c09-a016-fc92b83bd699" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="22ab9339-abcc-489e-bf51-20bf1b3128bf">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="ca77a2c4-94c6-413b-a76f-21b1c6e33730" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="b19fae1b-9ce2-4687-9866-1704c073c966" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="get-distribution-orders-flow Reference" doc:id="b74da55a-f8c2-4dca-87c7-45be57e1eaa1" name="get-distribution-orders-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\masterdata\product\(productIdentifier):s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="e5e9e2fc-df07-4eb3-ba7c-ff2a198f1b52" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="ce6bdb44-1b31-46d9-8272-2588c35c89c0">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="productIdentifier"><![CDATA[attributes.uriParams.'productIdentifier']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="0c7f87c0-77e9-462d-8f53-2121b276abca" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="455cd425-ead9-4c5a-9079-06516c283d55">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="941e1bd4-945f-411e-8297-9f9bc8243253" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="9162172c-ff91-4454-8d01-01151272e7ff" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="get-item-flow Reference" doc:id="26c626f2-58a1-48f8-a75d-f5879cea8de9" name="get-item-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\reporting\inventory\holdings:s-wmos-api-config" doc:id="67bdeca6-98eb-411a-a0dc-12c279544fc9">
+        <ee:transform doc:name="store-request" doc:id="8f7c24ff-761e-4b1f-94fb-cf50b5ac2cb7">
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="get-holdings-flow Reference" doc:id="b44292cd-ae3f-42bc-af67-d2176dfe562b" name="get-holdings-flow" />
+        <ee:transform doc:name="response" doc:id="a65a9fcf-6f62-4533-ae51-6421c0b6b3e4" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" doc:name="Logger" doc:id="9e024871-fc8d-4620-ba34-92f7a2c25100" message="#[payload]" category="this is being called" />
+    </flow>
+    <flow name="get:\reporting\inventory\transactions:s-wmos-api-config" doc:id="e3d69405-7bb4-4c44-b069-ed25773a0497">
+        <ee:transform doc:name="store-request" doc:id="2a6af410-be90-46d8-ae23-4deac120b03b">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="dateFrom"><![CDATA[attributes.queryParams.'dateFrom']]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="get-transactions-flow Reference" doc:id="34ed34db-c82c-49c3-a0ed-449656d8f354" name="get-transactions-flow" />
+        <ee:transform doc:name="response" doc:id="db72f402-0c4c-4cca-bb33-f04b02ab4c70" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\inbound\asn\(asnNumber):s-wmos-api-config" doc:id="4c77c16e-0c75-405b-bd88-10d5e0bf984f">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="4d2da335-709f-4c9c-890e-2ee853e1dc24" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="04af0ccc-7a29-4305-9a8a-af17264c3c35">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="asnNumber"><![CDATA[attributes.uriParams.'asnNumber']]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="093e3a93-6c90-41c6-99b0-e37747363990" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="2f2d97c0-0188-47b0-ad7e-a59a4b0218cb">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables />
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="d91e90b6-eee7-44ca-ba5c-c2d6e45179f7" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="d26f118a-c262-44c9-b753-913bcaf64ec0" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="get-asn-flow Reference" doc:id="963b09e4-8f6c-490f-9ae1-cf7e66b472ea" name="get-asn-flow" />
+        <ee:transform doc:name="response" doc:id="2122dbcf-95bc-4ff8-9245-f4827ca6615e" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\inbound\asn:application\json:s-wmos-api-config" doc:id="81ecd826-cbf3-4f66-91e3-a04cdd8fbe8a">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="6bd0f595-f2a3-46cd-b2de-5a6069b9bb01" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="b049fad8-b902-4d2d-b6a4-cc659a8e83d2">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="770d1412-cd0e-471a-b8ef-37d046d0084e" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="f9a0f008-7d69-4ee7-ab46-86473bb1af68" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="b3186a37-52b7-4d52-8813-cdd74e302c78">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="9672df56-c3eb-4140-add1-6ba44d5d32ac" name="action" targetValue="#[payload.contextID]" target="contextID" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="da522e52-b878-4b91-88b6-2ba64f4db84a" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="create-asn-flow Reference" doc:id="b8723b13-2a43-493a-b8bb-9f6841777461" name="create-asn-flow" />
+        <ee:transform doc:name="response" doc:id="1e39dfb5-e7ac-413f-af16-62bc1d0d77eb">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "ASN " ++ (vars.wmosResponse.Value.asnNumber default "") ++ " has been created successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\outbound\distributionOrders:application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="21c07422-fb4a-4ad3-a30d-5ba30bc5ec82" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="55049e72-e4d2-4fcb-becc-7895f919db47">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="7c6debb1-12da-4afd-bf4f-6f2fcb31a1c3" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="8b196d3d-548c-4d56-98d3-723fdf3ec12b" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="393db35b-7caf-4934-8dcf-954c730118b6">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="d5b5577b-b235-45a9-b215-20feaeaabdaf" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="4c093151-4f04-48c8-b638-3232c3ce1514" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="create-distribution-order-flow Reference" doc:id="70cd614b-245c-492c-ad65-f1759e9ce3e2" name="create-distribution-order-flow" />
+        <ee:transform doc:name="response" doc:id="dd6048df-bdc2-47de-81cb-dd97aade9ac1">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Distribution Order " ++ (vars.wmosResponse.Value.distributionOrderNumber default "") ++ " was created successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\masterdata\product:application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="2dc19901-b087-42f4-b87b-688d115862fe" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="e77b7845-008a-4b9b-9869-cfa3bd7dc269">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="ac185275-252e-4c59-ae03-04d35d6abf77" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="b48110da-26fd-44c1-86e0-a5161534f529" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="7a179fef-7933-4fef-b841-437a3919b0f0">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="185d8091-d4bd-416f-85c5-7bb6b7bfb185" name="action" targetValue="#[payload.contextID]" target="contextID" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="d721276e-c81b-4f25-b05b-5bf63ba76d41" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="create-item-flow Reference" doc:id="a74be1cc-3ffc-4fa1-8080-7e777fa813c1" name="create-item-flow" />
+        <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The product " ++ (vars.wmosResponse.Value.itemName default "") ++ " was created successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\inbound\purchaseOrder:application\json:s-wmos-api-config">
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="9f11526f-d248-4fb2-854c-7bffd86ec9e9" message="#[attributes.headers.&quot;CONTEXT-ID&quot;]" category="Logging attributes" />
+        <ee:transform doc:name="store-request" doc:id="9822f8d6-6dd9-42da-a3a2-d5c4883924f1">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="contextID"><![CDATA[attributes.headers."CONTEXT-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload]" doc:name="payloadRequest" doc:id="ba4463c3-d2b8-4346-bae5-5edbd7dd4830" variableName="payloadRequest" />
+        <logger level="INFO" doc:name="contextID-Logger" doc:id="a0dd6b57-2a17-4f36-96e0-07644c3006a0" message="#[vars.contextID]" category="Context variable" />
+        <ee:transform doc:name="auth-request-payload" doc:id="8788ca52-a7d0-4c5d-990a-b5d9c126c5e4">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"action": "SignIn",
+	"contextID": vars.contextID,
+	"businessUnit": vars.businessUnit
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="authentication-flow Reference" doc:id="f0ee1fcc-0beb-4eda-9e58-451919c6636a" name="action" target="contextID" targetValue="#[payload.contextID]" />
+        <logger level="INFO" doc:name="authentication-response" doc:id="3bbd4cd1-beb1-4e34-8a1c-71039c1340da" message="#[vars.contextID]" category="Authentication payload response" />
+        <flow-ref doc:name="create-purchase-order-flow Reference" doc:id="f6cb186e-ac04-4811-8352-cfea162fe3c8" name="create-purchase-order-flow" />
+        <ee:transform xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "The Purchase Order " ++ (vars.wmosResponse.Value.poNumber default "") ++ " was created successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\authentication:application\json:s-wmos-api-config" doc:id="effa23b8-934f-4d4d-906b-c9bd67186c4a">
+        <logger level="INFO" doc:name="request-payload" doc:id="4e1c43d6-9f9a-41ba-a573-600b36c909a8" message="#[payload]" category="request payload" />
+        <ee:transform doc:name="store-request" doc:id="7f5f2e3f-06a4-467b-84e1-c15b22b98238">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <set-variable value="#[payload.action]" doc:name="action" doc:id="f3da27d0-f883-4ecc-8969-74034bbe93f4" variableName="action" />
+        <logger level="INFO" doc:name="action value" doc:id="8fb4bfd8-c159-4d7a-a05c-dfbf3573fa2a" message="#[vars.action]" category="my action value" />
+        <flow-ref doc:name="authentication-flow Reference" doc:id="5ce988ba-79be-4005-ac90-728db6c641b8" name="action" />
+    </flow>
+    <flow name="post:\authentication\validate\businessUnit:application\json:s-wmos-api-config" doc:id="24e3f316-84e0-4dae-b188-22fb04a3c308">
+        <ee:transform doc:name="store-request" doc:id="51852c36-4d6c-4b75-91eb-8680b5a9b973">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="validate-businesUnit" doc:id="707c02d1-f041-4f0d-ac3b-73cc222e54e6" name="validate-businesUnit" />
+    </flow>
+    <flow name="post:\authentication\validate\contextID:application\json:s-wmos-api-config" doc:id="51197148-95d8-4d76-8f50-5c213f8f98ae">
+        <ee:transform doc:name="store-request" doc:id="cc36c229-92a7-487c-bcb9-b5823448ff64">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="transactionID"><![CDATA[attributes.headers."X-TRANSACTION-ID"]]></ee:set-variable>
+                <ee:set-variable variableName="businessUnit"><![CDATA[attributes.queryParams.'businessUnit']]></ee:set-variable>
+                <ee:set-variable variableName="clientID"><![CDATA[attributes.headers.'client_id' as String]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="validate-contextID" doc:id="67d2d1a8-a134-4632-8691-520448d6280f" name="validate-contextID" />
+    </flow>
+</mule>

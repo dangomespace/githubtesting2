@@ -1,0 +1,279 @@
+#%RAML 1.0
+title: API Template
+
+description: Purpose of the API is to provide an API template for Wincanton
+version: v1
+protocols: [HTTPS]
+mediaType: application/json
+documentation:
+  - !include docs/api_doc.raml
+
+securitySchemes:
+  basic: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-security/1.0.2/securityFragments/basicAuthentication/Basic-Authentication.raml
+  oAuth2_0: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-security/1.0.2/securityFragments/oAuth2.0Security/OAuth2-Security-Scheme.raml
+  clientIdAuth: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-security/1.0.2/securityFragments/clientIdEnforcement/clientIdEnforced.raml
+  
+securedBy: [clientIdAuth]
+
+
+
+uses: 
+  globalWMSDataTypes: exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/warehousing-common-datatypes/1.0.8/warehousing-common-datatypes.raml
+  errorDatatypes: exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/common-fault-messages.raml
+  resourceMethods: exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-resource-types/1.0.2/common-resource-types.raml
+  securitySchemes: exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-security/1.0.2/common-api-security.raml
+  localDataTypes: /libraries/localDataTypesLibrary.raml
+
+
+traits: 
+  paginated: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-traits/1.0.0/definitions/pagination.raml
+  traceable: !include /exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-api-traits/1.0.0/definitions/traceable.raml
+
+
+# HTTP Success codes
+  success_list_paged_200: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_list_paged_200.raml
+  success_list_200: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_list_200.raml
+  success_200: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_200.raml 
+  success_201: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_201.raml
+  success_201_xml: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_201_xml.raml
+  success_202: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/success_202.raml      
+  nullvalue_204: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-response-messages/1.0.0/definitions/nullvalue_204.raml
+
+# HTTP Error codes
+  err_400: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_400.raml
+  err_401: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_401.raml
+  err_404: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_404.raml
+  err_405: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_405.raml
+  err_406: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_406.raml
+  err_407: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_407.raml
+  err_415: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_415.raml
+  err_500: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_500.raml
+  err_503: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_503.raml
+  err_504: !include exchange_modules/58493d81-dbbb-4d5a-ad09-8b6a5da52369/common-fault-messages/1.0.4/traits/err_504.raml        
+
+
+
+  
+#######################################################################################################
+                                    #DO NOT EDIT ABOVE THIS LINE#
+#######################################################################################################
+  
+
+/WMOS:
+  /authentication:
+    type:  
+      resourceMethods.post_mode:
+        postRecordSummary: Allows the consumer to Sign In and Sign Out of Manhattan Associates WMOS
+        postRecordDescription: Allows the consumer to Sign In and Sign Out of Manhattan Associates WMOS
+        postRecordType: globalWMSDataTypes.WMSSecurity
+        postRecordExample: !include examples/requests/authentication_example.json
+        postOutputExample_201: !include examples/responses/authentication/success_201.json
+        postOutputExample_202: !include examples/responses/authentication/success_202.json
+    post:
+  /inbound:
+    /purchaseOrder:
+      type: 
+        resourceMethods.collection_types: 
+        #createPurchaseOrder
+          postDescription: This service allows users to create a new Purchase Order for a particular Business Unit 
+          postRequestType: globalWMSDataTypes.purchaseOrder
+          postRequestExample: !include examples/requests/purchaseOrder.json
+          postResponseExample_201: !include examples/responses/purchaseOrder/post_success_201.json
+          postResponseExample_202: !include examples/responses/success_202.json
+      post:
+      /{purchaseOrderNumber}:
+          type: 
+            resourceMethods.collection_types:
+              #updatePurchaseOrder
+                putDescription: This service allows users to update Purchase Order for a particular Business Unit
+                putRequestType: globalWMSDataTypes.purchaseOrder
+                putRequestExample: !include examples/requests/purchaseOrder.json
+                putResponseType: globalWMSDataTypes.purchaseOrder
+                putResponseExample:  !include examples/responses/purchaseOrder/put_success_202.json
+                putResponseExample_202: !include examples/responses/purchaseOrder/put_success_202.json
+              #cancelPurchaseOrder
+                deleteDescription: This service can be used to cancel Purchase Order for a particular Business Unit
+                deleteRequestType: nil
+                deleteRequestExample: null
+                deleteResponseType: globalWMSDataTypes.purchaseOrder
+                deleteResponseExample:  !include /examples/responses/purchaseOrder/delete_success_202.json
+                deleteResponseExample_202:  !include /examples/responses/purchaseOrder/delete_success_202.json
+          put:
+          delete:
+          /close:
+              type: 
+                resourceMethods.collection_types:
+                  #closePurchaseOrder
+                    putDescription: This service can be used to close Purchase Order for a particular Business Unit
+                    putRequestType: globalWMSDataTypes.purchaseOrder
+                    putRequestExample: !include examples/requests/purchaseOrder.json
+                    putResponseType: globalWMSDataTypes.purchaseOrder
+                    putResponseExample: !include examples/responses/purchaseOrder/put_success_200.json
+                    putResponseExample_202: !include examples/responses/purchaseOrder/put_success_200.json
+              put:
+                  queryParameters: 
+                    businessUnit:
+                      type: string 
+                      description: Business Unit of Purchase Order
+                      required: true
+    /asn:
+      type: 
+        resourceMethods.collection_types:
+          postDescription: This service is used to create the ASN information, based on the ASN number of the ASN for a business unit (BU).
+          postRequestType: globalWMSDataTypes.asn
+          postRequestExample: !include examples/requests/asnExample.json
+          postResponseExample_201: !include examples/responses/asn/success_201.json
+          postResponseExample_202: !include examples/responses/asn/success_202.json
+      post:
+      /{asnNumber}: 
+        type: 
+          resourceMethods.collection_types:
+            getDescription: This service is used to retrieve the ASN information, for a unique ASN record for a business unit (BU).
+            getResponseType: globalWMSDataTypes.asn
+            getResponseExample: !include examples/requests/asnExample.json     
+            putDescription: This service is used to update the ASN information for a business unit (BU).
+            putRequestType: globalWMSDataTypes.asn
+            putRequestExample: !include /examples/requests/asnExample.json
+            putResponseType: globalWMSDataTypes.asn
+            putResponseExample: !include examples/responses/success_202.json
+            putResponseExample_202: !include examples/responses/success_202.json
+        get:
+            queryParameters:
+              businessUnit: string
+        put:
+        /quantityRecieved:
+          type:
+            resourceMethods.collection_types:
+              getDescription: This service is used to retrieve the quanity recieved 
+              getResponseType: globalWMSDataTypes.asn
+              getResponseExample: !include examples/requests/asnExample.json  
+          get:
+        /lpnRecieved:
+          type:
+            resourceMethods.collection_types:
+              getDescription: This service is used to retrieve the LPN recieved 
+              getResponseType: globalWMSDataTypes.asn
+              getResponseExample: !include examples/requests/asnExample.json 
+          get:
+  /outbound:
+    /distributionOrders:
+      type: 
+        resourceMethods.collection_types: 
+        #CreateDistributionOrder 
+          postDescription: This service allows to create a distribution order
+          postRequestType: globalWMSDataTypes.distributionOrders
+          postRequestExample: !include examples/requests/distributionOrders.json
+          postResponseExample_201: !include examples/responses/success_201.json
+          postResponseExample_202: !include examples/responses/success_202.json
+        #listCurrentOpen
+          getDescription: This service allows to read a list of distribution orders for a particular Business Unit
+          getResponseType: globalWMSDataTypes.distributionOrdersList
+          getResponseExample: !include examples/requests/distributionOrders.json
+      post:
+      get:
+          queryParameters:
+            businessUnit:
+              description: Business Unit of the Item
+              type: string
+            doNumber:
+              description: 
+              type: string
+            pageSize:
+              description: Total number of records to be fetched
+              type: integer
+            pageNumber:
+              description: Page index from which the records are to be fetched
+              type: integer
+
+      /{distributionOrderNumber}:
+        type: 
+          resourceMethods.collection_types:
+          #getDistributionOrder
+            getDescription: This service allows to view all the distribution orders for a particular Business Unit
+            getResponseType: globalWMSDataTypes.distributionOrders
+            getResponseExample: !include examples/requests/distributionOrders.json
+          #updateDistributionOrder
+            putDescription: This service allows to update a dictibution order for a particuar Business Unit
+            putRequestType: globalWMSDataTypes.distributionOrders
+            putRequestExample: !include examples/requests/distributionOrders.json
+            putResponseType: globalWMSDataTypes.distributionOrders
+            putResponseExample:  !include examples/responses/distributionOrder/put_success_202.json
+            putResponseExample_202: !include examples/responses/distributionOrder/put_success_202.json
+          #cancelDistributionOrder
+            deleteDescription: This servive allows to cancel a specific distribution order
+            deleteRequestType: nil
+            deleteRequestExample: null
+            deleteResponseType: globalWMSDataTypes.distributionOrders
+            deleteResponseExample:  !include examples/responses/distributionOrder/delete_success_202.json
+            deleteResponseExample_202:  !include examples/responses/distributionOrder/delete_success_202.json        
+        get:
+            queryParameters:
+              businessUnit:
+                description: Business Unit of the Item
+                type: string
+        put:
+        delete:
+  /reporting:
+        /inventory:
+          /stockholdings:
+          /transactions:
+  /masterdata:
+          /product:
+            type:
+              resourceMethods.collection_types:
+              #POST method to create a new products
+                postDescription: This method allows user to create a new product
+                postRequestType: globalWMSDataTypes.product
+                postRequestExample: !include examples/requests/product.json
+                postResponseExample_201: !include examples/responses/product/post_success_201.json
+                postResponseExample_202: !include examples/responses/product/post_success_201.json
+              #GET method for current products
+                getDescription: This method fetches an array of products passed through the post method
+                getResponseType: globalWMSDataTypes.productList
+                getResponseExample: !include examples/requests/product.json
+            post:
+            get:
+                queryParameters:
+                  businessUnit:
+                    description: Business Unit of the Item
+                    type: string
+                  itemName:
+                    description: Name of the Item
+                    type: string
+                  businessPartner:
+                    description: customer or supplier
+                    type: string
+                  pageSize:
+                    description: Total number of records to be fetched
+                    type: integer
+                  pageNumber:
+                    description: Page index from which the records are to be fetched
+                    type: integer
+            /{productIdentifier}:
+              type: 
+                resourceMethods.collection_types:
+                #GET method for product information
+                  getDescription: This method is used to get the product information
+                  getResponseType: globalWMSDataTypes.product
+                  getResponseExample: !include examples/requests/product.json
+                #PUT method to update products
+                  putDescription: Update method allows user to update a product that is available 
+                  putRequestType: globalWMSDataTypes.product
+                  putRequestExample: !include examples/requests/product.json
+                  putResponseType: globalWMSDataTypes.product
+                  putResponseExample:  !include examples/responses/product/put_success_202.json
+                  putResponseExample_202: !include examples/responses/product/put_success_202.json
+                #DELETE method to DELETE products
+                  deleteDescription: Delete method allows the user to mark a product as “Cancelled”
+                  deleteRequestType: globalWMSDataTypes.product
+                  deleteRequestExample: !include examples/requests/product.json
+                  deleteResponseType: globalWMSDataTypes.product
+                  deleteResponseExample:  !include examples/responses/product/delete_success_202.json
+                  deleteResponseExample_202:  !include examples/responses/product/delete_success_202.json
+              get:
+                  queryParameters:
+                    businessUnit:
+                      description: Business Unit of the Item
+                      type: string
+              put:
+              delete:                            

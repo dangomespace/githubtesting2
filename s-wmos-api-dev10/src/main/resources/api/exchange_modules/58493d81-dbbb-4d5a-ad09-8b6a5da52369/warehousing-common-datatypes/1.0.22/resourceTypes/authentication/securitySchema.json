@@ -1,0 +1,42 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://wincanton.co.uk/security.json",
+	"type": "object",
+	"title": "Security",
+	"description": "The Security schema comprises the entire JSON document.",
+	"default": {},
+	"properties": {
+		"action": {
+			"$id": "#/properties/action",
+			"default": "SignIn",
+			"description": "Security Action",
+			"examples": [
+				"SignIn"
+			],
+			"title": "Security Action",
+			"enum": [
+				"SignIn",
+				"SignOut",
+				""
+			],
+			"maximum": 1,
+			"minimum": 1,
+			"type": "string"
+		},
+		"contextID": {
+			"$id": "#/properties/contextID",
+			"type": "string",
+			"title": "ContextID",
+			"description": "Context ID - Only for Sign Out and Validate Context ID Operation",
+			"default": ""
+		},
+		"businessUnit": {
+			"$id": "#/properties/businessUnit",
+			"type": "string",
+			"title": "Business Unit",
+			"description": "Business Unit - Only for Validate Business Unit Operation",
+			"default": ""
+		}
+	},
+	"additionalProperties": true
+}

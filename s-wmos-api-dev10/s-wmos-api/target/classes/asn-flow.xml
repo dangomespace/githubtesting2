@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="create-asn-flow" doc:id="6ee998ff-2b9c-45bc-8ca9-661c0d4a072a" >
+		<logger level="INFO" doc:name="Logger" doc:id="553c2ac8-26d0-4251-ad29-b4ccf6dcfe37" />
+	</flow>
+	<flow name="create-asn-flow" doc:id="3c74da74-8288-44bf-a388-bfa58de2c4c8" >
+		<logger level="INFO" doc:name="Logger" doc:id="2277d9fa-3d21-4f20-a25d-7e287bac7269" />
+	</flow>
+</mule>

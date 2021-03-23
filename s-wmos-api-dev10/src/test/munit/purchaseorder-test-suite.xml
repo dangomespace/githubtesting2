@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="purchaseorder-test-suite.xml" />
+	<munit:test name="post:\inbound\purchaseOrder" doc:id="0f4e963d-3774-46ef-a625-992ed31bfaba">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="99b5974b-7800-45ce-b351-efd63cee90dd">
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+				<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="5b7635b6-21a8-4891-b120-f17a9ebb3c11" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://purchase_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://purchase_order\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when faking-payload" doc:id="8d95c3c1-66ac-4184-9e9e-8f4f85ee8990" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="create-po-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="text/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+				</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response-validation-flow" doc:id="7b74616d-ad70-498c-8f8f-c37063dd008a" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to post:\inbound\purchaseOrder:application\json:s-wmos-api-config" doc:id="a65c87de-b13d-46fa-b7d5-6061569d8e54" name="post:\inbound\purchaseOrder:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="95a9ec49-2513-4e45-aeb3-260c792e52dd" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import purchase_order::assert_expression_payload_create
+---
+assert_expression_payload_create::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="put:\inbound\purchaseOrder\(purchaseOrderNumber)\close" doc:id="2a889b34-affa-4b68-a7a8-aece51824d8c">
+			<munit:behavior>
+			<munit:set-event doc:name="Set Input" doc:id="3f4bdba1-6a4c-4e50-bfdf-e7194b8831f6">
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="e66756e8-9997-4eb8-8d2e-d95a1b6d747b" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://purchase_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when wsc:consume" doc:id="51917115-04f0-4195-9270-d3135fc77800" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="close-po-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response-validation-flow" doc:id="b847a43c-f15a-4c82-add8-2a8906228240" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to put:\inbound\purchaseOrder\(purchaseOrderNumber)\close:application\json:s-wmos-api-config" doc:id="633680aa-4dd2-4b38-9ffa-4d8d253517f4" name="put:\inbound\purchaseOrder\(purchaseOrderNumber)\close:application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="4389f9cc-713b-4976-912c-3d3758e55c18" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import purchase_order::assert_expression_payload_close
+---
+assert_expression_payload_close::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="put:\inbound\purchaseOrder\(purchaseOrderNumber)" doc:id="43a5d64c-3773-4d57-8dc1-3776bb9ef9f5">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="8cae9fbb-d7aa-4291-9dd8-d3d14bb89a4e">
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="43a5dcc1-1d9a-40a9-9fb2-8c912a618294" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://purchase_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when wsc:consume" doc:id="7529a9cd-36ef-4f22-be84-d1b391374cc4" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="update-po-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response-validation-flow" doc:id="3e967f64-1f64-4d51-bc5f-fa476deb9331" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to put:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config" doc:id="0418ec02-6670-40a5-8f39-0c8d6f494348" name="put:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="8527b965-fc19-4d26-be5a-6f6b0f77b090" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import purchase_order::assert_expression_payload_update
+---
+assert_expression_payload_update::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+	<munit:test name="delete:\inbound\purchaseOrder\(purchaseOrderNumber)" doc:id="4930b76b-310f-4feb-aa21-3535a0308574">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Input" doc:id="0e1176f8-633e-4f3a-95c0-76867626fca5">
+				<munit:payload value="#[output application/json --- readUrl('classpath://purchase_order\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://purchase_order\set-event_attributes.dwl')]" />
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock authentication-flow Reference" doc:id="92c60a62-8918-4bbb-a045-f4201d0aa516" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="authentication-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://purchase_order\mock_payload_auth.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="contextID" value="#[output application/json --- readUrl('classpath://asn\mock_variable_context_id.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when wsc:consume" doc:id="cdcf5173-42ad-4305-8cd7-45679bfb0f74" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cancel-po-consume" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when response-validation-flow" doc:id="672d17c2-fbf1-490f-b8ae-1bd4caa1f35e" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="response-validation-flow Reference" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsString("consume_payload.json")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="delete:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config" doc:id="6e042700-33f7-4f15-9227-1a0de8f0e5ae" name="delete:\inbound\purchaseOrder\(purchaseOrderNumber):application\json:s-wmos-api-config" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert doc:name="Assert payload" doc:id="745e9403-a4a1-4a9a-9366-463b17cf49df" message="The payload does not match">
+					<munit-tools:that><![CDATA[#[%dw 2.0
+import purchase_order::assert_expression_payload_cancel
+---
+assert_expression_payload_cancel::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+				</munit-tools:assert>
+			</munit:validation>
+		</munit:test>
+
+
+</mule>

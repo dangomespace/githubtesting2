@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+     <secure-properties:config name="Secure_Properties_Config_env_specific" doc:name="Secure Properties Config" doc:id="4751cb8c-c31b-4734-bcb2-bb662c162c23" file="properties/${mule.env}.yaml" key="${secret.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" mode="ECB" />
+	</secure-properties:config> 
+         
+	<configuration-properties doc:name="Configuration properties" doc:id="8d868a19-e395-492a-b761-c2b282233825" file="properties/global.yaml" />
+	<global-property doc:name="Global Property" doc:id="8b0e8460-ae87-4651-ba0f-3761de2db070" name="mule.env" value="local" />
+	<global-property doc:name="Global Property" doc:id="7eb1192a-02a6-41f1-a0a1-73d34f1f353c" name="secret.key" value="x!A%C*F-JaNdRgUk" />
+   
+    <http:listener-config name="s-wmos-api-httpListenerConfig" doc:name="HTTP Listener config" doc:id="09b6f9ca-f57f-4d99-814c-0b8b5b9a7413" >
+		<http:listener-connection protocol="HTTPS" host="${https.host}" port="${https.internalport}" >
+			 <tls:context >
+				<tls:trust-store insecure="true" path="certificates/trusted-client-truststore.p12" password="password" type="pkcs12"/>
+				<tls:key-store keyPassword="password" password="password" type="pkcs12" path="certificates/server-dev-keystore.p12" alias="server"/>
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<apikit:config name="s-wmos-api-config" api="s-wmos-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	
+</mule>
