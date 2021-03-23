@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 		<validation:is-not-null doc:name="action" doc:id="c444af67-49a2-4015-94cd-3a3d8c66b75f" value="#[vars.action]" message="Action is not defined"/>
 		<flow-ref doc:name="retrieve-credentials" doc:id="bb74fbcb-d0f3-468d-822e-c4f11950f31b" name="retrieve-credentials"/>
 		<logger level="INFO" doc:name="API GITHUB" doc:id="392ab4fe-e802-4f31-9844-788636f41891" message="${secure::api.id}"/>
-		<logger level="INFO" doc:name="API 2" doc:id="afcb0bc6-5f02-4d4b-8411-4c08836c0a54" message="${secure::os.ttl}" category="os ttl"/>
+		<logger level="INFO" doc:name="API 3" doc:id="afcb0bc6-5f02-4d4b-8411-4c08836c0a54" message="${secure::os.ttl}" category="os ttl"/>
 		<logger level="INFO" doc:name="Logger" doc:id="96861b4a-2a0a-47b1-a249-b00f66690ace" message="${secure::os.expInterval}" category="expInterval"/>
 		<logger level="INFO" doc:name="Logger" doc:id="682410cd-fa3b-4386-ac8d-eab60a2eb660" message="in the action flow" />
 		<logger level="INFO" doc:name="Logger" doc:id="b9d66d4c-203b-4b36-9f21-972254df306a" message="#[payload]" />
@@ -52,7 +52,11 @@ p('secure::authentication.' ++ vars.clientID ++ '.username')
 		</ee:transform>
 		<validation:is-not-null doc:name="Is not null" doc:id="b9283fc3-e93c-4dd0-a174-2714e17faa0a" value="#[vars.username]" message="Invalid clientID" />
 		<logger level="INFO" doc:name="Logger" doc:id="edc05e72-2f91-4b71-97f8-8f8c44348917" message="#[vars.username]" category="username retrieved" />
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="5ac0bb68-4816-47b0-a1e7-17ac41548cf3" variableName="osKey" />
+		<set-variable value="#[%dw 2.0
+&#10;output application/json
+&#10;---
+&#10;
+&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="5ac0bb68-4816-47b0-a1e7-17ac41548cf3" variableName="osKey" />
 	</sub-flow>
 	<sub-flow name="retrieve-contextID" doc:id="dcfe009f-669e-4d88-9a47-b5f3eeb0093d" >
 		<os:retrieve doc:name="Retrieve contextID" doc:id="04be685d-677d-4423-8a21-0e60c698b6c2" key="#[vars.osKey]" objectStore="contextID" target="contextID" />
@@ -83,7 +87,10 @@ output application/json
 	</sub-flow>
 	<sub-flow name="signIn-manhattan" doc:id="0793e3b7-39c7-4e92-9272-fed9c4078271">
 		<logger level="INFO" doc:name="Logger" doc:id="49b510fc-4706-4be5-8196-3bc96fc6523a" message="in the Retriveing context id" />
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;p('secure::authentication.' ++ vars.clientID ++ '.password')]" doc:name="password" doc:id="c18a76fc-12da-4c94-b99d-e73f602bb868" variableName="password"/>
+		<set-variable value="#[%dw 2.0
+&#10;output application/json
+&#10;---
+&#10;p('secure::authentication.' ++ vars.clientID ++ '.password')]" doc:name="password" doc:id="c18a76fc-12da-4c94-b99d-e73f602bb868" variableName="password"/>
 		<logger level="INFO" doc:name="Logger" doc:id="de853471-884e-4564-9ba7-58ee9bfe2226" message="#[vars.password]" category="password logged"/>
 		<ee:transform doc:name="Manhattan signIn" doc:id="a1b18864-2bb8-4f9c-b0bf-6f39370639c2">
 			<ee:message>
@@ -228,7 +235,11 @@ p('secure::authentication.' ++ vars.clientID ++ '.username')
 			</ee:variables>
 		</ee:transform>
 		<validation:is-not-null doc:name="Is not null" doc:id="f19b7c50-7a30-4e93-a83c-a63b10613a1c" value="#[vars.username]" message="Invalid clientID" />
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="a026bb40-8916-43fd-8fd1-71a1fbd01b03" variableName="osKey" />
+		<set-variable value="#[%dw 2.0
+&#10;output application/json
+&#10;---
+&#10;
+&#10;(vars.clientID) ++ '-' ++ (vars.username)]" doc:name="osKey" doc:id="a026bb40-8916-43fd-8fd1-71a1fbd01b03" variableName="osKey" />
 		<try doc:name="Try" doc:id="cb6f49a1-35a7-4b50-a874-6cb8697cd8b0" >
 			<logger level="INFO" doc:name="vars.osKey" doc:id="1619f14b-0916-407f-9e54-8dbedda2f4e0" message="#[vars.osKey]" category="osKey"/>
 			<logger level="INFO" doc:name="before retrieve OS" doc:id="a6fb9059-ae07-45aa-bc31-99362b0d926d" message="before retrieve OS" />
