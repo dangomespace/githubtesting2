@@ -15,8 +15,8 @@ http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oa
 		<set-variable value="#[payload.action]" doc:name="action" doc:id="41677b0c-44db-4725-9af1-afc9aaa8ddca" variableName="action" />
 		<validation:is-not-null doc:name="action" doc:id="c444af67-49a2-4015-94cd-3a3d8c66b75f" value="#[vars.action]" message="Action is not defined"/>
 		<flow-ref doc:name="retrieve-credentials" doc:id="bb74fbcb-d0f3-468d-822e-c4f11950f31b" name="retrieve-credentials"/>
-		<logger level="INFO" doc:name="Logger" doc:id="392ab4fe-e802-4f31-9844-788636f41891" message="${secure::api.id}"/>
-		<logger level="INFO" doc:name="Logger" doc:id="afcb0bc6-5f02-4d4b-8411-4c08836c0a54" message="${secure::os.ttl}" category="os ttl"/>
+		<logger level="INFO" doc:name="API GITHUB" doc:id="392ab4fe-e802-4f31-9844-788636f41891" message="${secure::api.id}"/>
+		<logger level="INFO" doc:name="API 2" doc:id="afcb0bc6-5f02-4d4b-8411-4c08836c0a54" message="${secure::os.ttl}" category="os ttl"/>
 		<logger level="INFO" doc:name="Logger" doc:id="96861b4a-2a0a-47b1-a249-b00f66690ace" message="${secure::os.expInterval}" category="expInterval"/>
 		<logger level="INFO" doc:name="Logger" doc:id="682410cd-fa3b-4386-ac8d-eab60a2eb660" message="in the action flow" />
 		<logger level="INFO" doc:name="Logger" doc:id="b9d66d4c-203b-4b36-9f21-972254df306a" message="#[payload]" />
